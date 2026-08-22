@@ -1,4 +1,4 @@
-.PHONY: help install lint test format clean docker-build docker-run docker-logs inference benchmark
+.PHONY: help install lint test format clean docker-build docker-run docker-logs inference benchmark demo-phase2 test-integration
 
 # Variables
 PYTHON := python3
@@ -19,6 +19,7 @@ help:
 	@echo "  test-security     Run security tests"
 	@echo "  clean             Remove build artifacts"
 	@echo "  inference         Run Phase 1 inference test"
+	@echo "  demo-phase2       Run Phase 2 tool orchestration demo"
 	@echo "  docker-build      Build Docker image"
 	@echo "  docker-run        Run containerized agent"
 	@echo "  docker-logs       View Docker logs"
@@ -64,6 +65,10 @@ clean:
 inference:
 	@echo "Running Phase 1 inference test..."
 	$(PYTHON) -m src.core.inference
+
+demo-phase2:
+	@echo "Running Phase 2 tool orchestration demo..."
+	$(PYTHON) -m scripts.phase2_demo
 
 docker-build:
 	@echo "Building Docker image..."
