@@ -224,6 +224,66 @@ class RetrieveContextResult(BaseModel):
     context_text: str  # formatted, citation-ready context block
 
 
+class ExtractClaims(BaseModel):
+    """Input schema for claim extraction tool (Phase 5)."""
+    paper_id: str = Field(
+        ...,
+        description="ID of the paper to extract claims from (must already be ingested)",
+    )
+    min_confidence: float = Field(
+        default=0.5,
+        description="Minimum heuristic confidence to keep an extracted claim",
+        ge=0.0,
+        le=1.0,
+    )
+
+
+class ExtractedClaimOutput(BaseModel):
+    """A single extracted claim."""
+    claim_id: str
+    claim_text: str
+    claim_type: str
+    confidence: float
+
+
+class ExtractClaimsResult(BaseModel):
+    """Output schema for claim extraction (Phase 5)."""
+    paper_id: str
+    claims: List[ExtractedClaimOutput]
+
+
+class CheckContradictions(BaseModel):
+    """Input schema for contradiction-detection tool (Phase 5)."""
+    paper_id: str = Field(
+        ...,
+        description="Paper whose claims should be checked against claims from other papers",
+    )
+    compare_against_paper_ids: List[str] = Field(
+        default_factory=list,
+        description="Paper IDs to compare against; empty means compare against all other papers with claims",
+    )
+
+
+class ClaimRelationOutput(BaseModel):
+    """A single claim-vs-claim relationship."""
+    claim_id_a: str
+    claim_text_a: str
+    claim_id_b: str
+    claim_text_b: str
+    relation_type: str  # "supports", "contradicts", "neutral"
+    similarity_score: float
+    confidence: float
+    explanation: str
+
+
+class CheckContradictionsResult(BaseModel):
+    """Output schema for contradiction detection (Phase 5)."""
+    paper_id: str
+    relations: List[ClaimRelationOutput]
+    contradiction_count: int
+    support_count: int
+
+
 # ============================================================================
 # TOOL DEFINITION BASE CLASS
 # ============================================================================

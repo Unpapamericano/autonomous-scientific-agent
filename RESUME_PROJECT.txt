@@ -5,7 +5,7 @@ AUTONOMOUS SCIENTIFIC RESEARCH AGENT - RESUME LATER GUIDE
 PROJECT LOCATION:
 C:\Users\49174\projects\autonomous-scientific-agent\
 
-STATUS: Phase 4 (Vector Search & RAG) COMPLETE. Phase 5 (Evidence Graph) next.
+STATUS: Phase 5 (Evidence Graph & Contradiction Detection) COMPLETE. Phase 6 (Python Sandbox) next.
 
 --------------------------------------------------------
 HOW TO RESUME WORK (COPY-PASTE THESE STEPS)
@@ -44,12 +44,15 @@ Phase 3 - Real literature search (PubMed/arXiv/OpenAlex) + PostgreSQL
 Phase 4 - Vector search & RAG pipeline: embeddings, pgvector (with
           in-memory fallback), retrieve_context agent tool
           (src/rag/embeddings.py, vector_search.py, pipeline.py, rag_tool.py)
+Phase 5 - Evidence graph & contradiction detection: heuristic claim
+          extraction, claim-vs-chunk evidence linking, claim-vs-claim
+          contradiction/support detection, extract_claims + check_contradictions
+          agent tools (src/rag/claim_extraction.py, evidence_graph.py, evidence_tool.py)
 
 --------------------------------------------------------
 WHAT'S NEXT (IN ORDER)
 --------------------------------------------------------
-Phase 5  - Evidence graph & contradiction detection <- CURRENT
-Phase 6  - Python sandbox (Docker-based safe code execution)
+Phase 6  - Python sandbox (Docker-based safe code execution) <- CURRENT
 Phase 7  - Multimodal document understanding (PDF/figures/tables)
 Phase 8  - Security layer (prompt injection defense)
 Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks)
@@ -72,6 +75,9 @@ Embeddings              src/rag/embeddings.py
 Vector search           src/rag/vector_search.py
 RAG pipeline            src/rag/pipeline.py
 RAG agent tool          src/rag/rag_tool.py
+Claim extraction        src/rag/claim_extraction.py
+Evidence graph          src/rag/evidence_graph.py
+Evidence agent tools    src/rag/evidence_tool.py
 Integration tests       tests/integration/
 Demo script             scripts/phase2_demo.py
 
@@ -96,5 +102,5 @@ and reference this file if the assistant needs context on
 where things stand.
 
 ========================================================
-Last updated: Phase 4 complete (tests passing: 30 passed, 13 skipped)
+Last updated: Phase 5 complete (tests passing: 62 passed, 13 skipped)
 ========================================================

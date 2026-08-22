@@ -187,9 +187,14 @@ class Claim(Base):
 
     id = Column(String(100), primary_key=True)
     paper_id = Column(String(100), ForeignKey("papers.id"), nullable=False, index=True)
+    source_chunk_id = Column(String(100), ForeignKey("document_chunks.id"), nullable=True, index=True)
     claim_text = Column(Text, nullable=False)
     section = Column(String(100), nullable=True)  # Where in paper
     claim_type = Column(String(50), nullable=True)  # "finding", "hypothesis", "limitation", etc.
+
+    # Phase 5: Embedding for semantic claim matching / contradiction detection
+    claim_embedding = embedding_column()
+    embedding_model = Column(String(100), nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     extra_metadata = metadata_column()
@@ -226,6 +231,38 @@ class Evidence(Base):
 
     def __repr__(self):
         return f"<Evidence {self.id}: {self.evidence_type} (conf={self.confidence:.2f})>"
+
+
+class ClaimRelation(Base):
+    """Relationship between two claims: supports, contradicts, or neutral (Phase 5)."""
+
+    __tablename__ = "claim_relations"
+
+    id = Column(String(100), primary_key=True)
+    claim_id_a = Column(String(100), ForeignKey("claims.id"), nullable=False, index=True)
+    claim_id_b = Column(String(100), ForeignKey("claims.id"), nullable=False, index=True)
+
+    relation_type = Column(String(50), nullable=False, index=True)  # "supports", "contradicts", "neutral"
+    similarity_score = Column(Float, nullable=False)  # topical/embedding similarity 0.0-1.0
+    confidence = Column(Float, nullable=False)  # confidence in the relation_type classification
+    explanation = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    extra_metadata = metadata_column()
+
+    claim_a = relationship("Claim", foreign_keys=[claim_id_a])
+    claim_b = relationship("Claim", foreign_keys=[claim_id_b])
+
+    __table_args__ = (
+        UniqueConstraint("claim_id_a", "claim_id_b", name="uq_claim_relation_pair"),
+        Index("idx_claim_relation_type", "relation_type"),
+    )
+
+    def __repr__(self):
+        return (
+            f"<ClaimRelation {self.claim_id_a} ~ {self.claim_id_b}: "
+            f"{self.relation_type} (conf={self.confidence:.2f})>"
+        )
 
 
 class ResearchSession(Base):
