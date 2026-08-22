@@ -188,6 +188,42 @@ class VerificationResult(BaseModel):
     reasoning: str
 
 
+class RetrieveContext(BaseModel):
+    """Input schema for RAG context retrieval tool (Phase 4)."""
+    question: str = Field(
+        ...,
+        description="Natural language question to retrieve grounded context for",
+        min_length=3,
+        max_length=500,
+    )
+    top_k: int = Field(
+        default=5,
+        description="Number of relevant chunks to retrieve",
+        ge=1,
+        le=20,
+    )
+    paper_id: Optional[str] = Field(
+        default=None,
+        description="Optionally restrict retrieval to a single paper ID",
+    )
+
+
+class RetrievedChunk(BaseModel):
+    """A single retrieved chunk with provenance."""
+    chunk_id: str
+    paper_id: str
+    content: str
+    section: Optional[str] = None
+    score: float
+
+
+class RetrieveContextResult(BaseModel):
+    """Output schema for RAG context retrieval (Phase 4)."""
+    question: str
+    chunks: List[RetrievedChunk]
+    context_text: str  # formatted, citation-ready context block
+
+
 # ============================================================================
 # TOOL DEFINITION BASE CLASS
 # ============================================================================

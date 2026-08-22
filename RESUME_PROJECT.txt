@@ -1,0 +1,100 @@
+========================================================
+AUTONOMOUS SCIENTIFIC RESEARCH AGENT - RESUME LATER GUIDE
+========================================================
+
+PROJECT LOCATION:
+C:\Users\49174\projects\autonomous-scientific-agent\
+
+STATUS: Phase 4 (Vector Search & RAG) COMPLETE. Phase 5 (Evidence Graph) next.
+
+--------------------------------------------------------
+HOW TO RESUME WORK (COPY-PASTE THESE STEPS)
+--------------------------------------------------------
+
+1. Open a terminal and go to the project:
+   cd C:\Users\49174\projects\autonomous-scientific-agent
+
+2. Install dependencies (if new environment):
+   make install
+
+3. Run tests to confirm everything still works:
+   make test
+   make test-integration
+
+4. Run the no-GPU demo to sanity check tools/orchestration:
+   make demo-phase2
+
+5. Check git history to see what's been done:
+   git log --oneline
+
+6. Read status docs in this order:
+   - PROJECT_STATUS.md   (full overview, start here)
+   - PHASE1_SUMMARY.md    (LLM inference)
+   - PHASE2_SUMMARY.md    (tool calling / orchestration)
+   - PHASE3_SUMMARY.md    (literature APIs / database)
+   - PHASE4_SUMMARY.md    (vector search / RAG, once created)
+
+--------------------------------------------------------
+WHAT'S DONE
+--------------------------------------------------------
+Phase 1 - Muse Glimmer 30B inference (src/core/inference.py)
+Phase 2 - Tool calling + agent orchestration (src/core/tools*.py, orchestration.py)
+Phase 3 - Real literature search (PubMed/arXiv/OpenAlex) + PostgreSQL
+          (src/research/apis.py, src/rag/models.py, database.py, repositories.py)
+Phase 4 - Vector search & RAG pipeline: embeddings, pgvector (with
+          in-memory fallback), retrieve_context agent tool
+          (src/rag/embeddings.py, vector_search.py, pipeline.py, rag_tool.py)
+
+--------------------------------------------------------
+WHAT'S NEXT (IN ORDER)
+--------------------------------------------------------
+Phase 5  - Evidence graph & contradiction detection <- CURRENT
+Phase 6  - Python sandbox (Docker-based safe code execution)
+Phase 7  - Multimodal document understanding (PDF/figures/tables)
+Phase 8  - Security layer (prompt injection defense)
+Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks)
+Phase 10 - Dashboard / UI
+Phase 11 - Deployment
+Phase 12 - Final integration & report
+
+--------------------------------------------------------
+KEY FILES CHEAT SHEET
+--------------------------------------------------------
+LLM inference        src/core/inference.py
+Tool registry         src/core/tools.py
+Tool implementations  src/core/tools_impl.py
+Agent orchestration    src/core/orchestration.py
+Literature APIs        src/research/apis.py
+DB models              src/rag/models.py
+DB connection           src/rag/database.py
+DB repositories        src/rag/repositories.py
+Embeddings              src/rag/embeddings.py
+Vector search           src/rag/vector_search.py
+RAG pipeline            src/rag/pipeline.py
+RAG agent tool          src/rag/rag_tool.py
+Integration tests       tests/integration/
+Demo script             scripts/phase2_demo.py
+
+--------------------------------------------------------
+USEFUL COMMANDS
+--------------------------------------------------------
+make install             Install all dependencies
+make test                 Run unit tests
+make test-integration     Run integration tests
+make lint / make format   Code quality
+make demo-phase2          Run tool/agent demo (no GPU)
+make inference            Run Phase 1 LLM load test (GPU)
+
+git log --oneline         See all commits
+git status                See uncommitted changes
+
+--------------------------------------------------------
+TO CONTINUE WITH THE AI ASSISTANT
+--------------------------------------------------------
+Just say: "Continue with Phase 4" (or whichever phase is next)
+and reference this file if the assistant needs context on
+where things stand.
+
+========================================================
+Last updated: Phase 4 complete (tests passing: 30 passed, 13 skipped)
+========================================================

@@ -43,7 +43,7 @@ class PaperRepository:
             doi=metadata.doi,
             journal=metadata.journal,
             publish_date=metadata.publish_date,
-            metadata=metadata.metadata,
+            extra_metadata=metadata.metadata,
         )
         self.session.add(paper)
         self.session.flush()

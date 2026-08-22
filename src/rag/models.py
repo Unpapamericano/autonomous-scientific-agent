@@ -9,6 +9,12 @@ SQLAlchemy models for storing:
   - Research sessions (Phase 2 agent state)
 
 Uses PostgreSQL + pgvector (Phase 4+).
+
+Note: SQLAlchemy's Declarative API reserves the attribute name `metadata`
+on model classes (it's used internally for `Base.metadata`, the schema
+registry). All "extra metadata" JSON columns below are therefore exposed
+as the Python attribute `extra_metadata`, while the actual database
+column is still named `metadata` for readability in SQL.
 """
 
 from datetime import datetime
@@ -29,7 +35,31 @@ from sqlalchemy import (
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
+try:
+    # pgvector.sqlalchemy provides a proper Vector column type for PostgreSQL.
+    # Falls back to JSON storage if pgvector isn't installed (e.g. in CI/local
+    # SQLite testing), so Phase 4 code can still import/run without it.
+    from pgvector.sqlalchemy import Vector
+    PGVECTOR_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    Vector = None
+    PGVECTOR_AVAILABLE = False
+
+from src.rag.embeddings import EMBEDDING_DIM
+
 Base = declarative_base()
+
+
+def embedding_column():
+    """Return the appropriate column type for storing embeddings."""
+    if PGVECTOR_AVAILABLE:
+        return Column(Vector(EMBEDDING_DIM), nullable=True)
+    return Column(JSON, nullable=True)  # fallback: list of floats as JSON
+
+
+def metadata_column():
+    """Return a JSON 'extra metadata' column, avoiding the reserved `metadata` attribute name."""
+    return Column("metadata", JSON, nullable=True)
 
 
 class Paper(Base):
@@ -51,7 +81,11 @@ class Paper(Base):
 
     full_text = Column(Text, nullable=True)  # Full paper text (optional, Phase 5+)
     retrieved_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    metadata = Column(JSON, nullable=True)  # Additional fields
+    extra_metadata = metadata_column()  # Additional fields
+
+    # Phase 4: Abstract-level embedding (fast paper-level semantic search)
+    abstract_embedding = embedding_column()
+    embedding_model = Column(String(100), nullable=True)
 
     chunks = relationship("DocumentChunk", back_populates="paper", cascade="all, delete-orphan")
     search_results = relationship("SearchResult", back_populates="paper")
@@ -77,11 +111,12 @@ class DocumentChunk(Base):
     section = Column(String(100), nullable=True)  # e.g., "introduction", "methods", "results"
     page_number = Column(Integer, nullable=True)
 
-    # Phase 4+: Embedding vector
-    embedding = Column(String(1000), nullable=True)  # JSON-serialized vector or pgvector type
+    # Phase 4: Embedding vector (pgvector column, falls back to JSON)
+    embedding = embedding_column()
+    embedding_model = Column(String(100), nullable=True)  # which model generated it
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     paper = relationship("Paper", back_populates="chunks")
     evidence_items = relationship("Evidence", back_populates="chunk")
@@ -112,7 +147,7 @@ class Search(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
     session_id = Column(String(100), nullable=True, index=True)  # Links to agent session
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     search_results = relationship("SearchResult", back_populates="search", cascade="all, delete-orphan")
 
@@ -157,7 +192,7 @@ class Claim(Base):
     claim_type = Column(String(50), nullable=True)  # "finding", "hypothesis", "limitation", etc.
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     evidence_items = relationship("Evidence", back_populates="claim", cascade="all, delete-orphan")
 
@@ -179,7 +214,7 @@ class Evidence(Base):
     explanation = Column(Text, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     claim = relationship("Claim", back_populates="evidence_items")
     chunk = relationship("DocumentChunk", back_populates="evidence_items")
@@ -210,7 +245,7 @@ class ResearchSession(Base):
     # Trajectory state (serialized)
     state_json = Column(JSON, nullable=True)  # Serialized AgentState
 
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     def __repr__(self):
         return f"<ResearchSession {self.id}: {self.topic[:50] if self.topic else 'untagged'}>"
@@ -233,7 +268,7 @@ class ToolExecution(Base):
     duration_ms = Column(Float, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     def __repr__(self):
         status = "✓" if self.success else "✗"
@@ -262,13 +297,11 @@ class Evaluation(Base):
     metrics = Column(JSON, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
-    metadata = Column(JSON, nullable=True)
+    extra_metadata = metadata_column()
 
     def __repr__(self):
-        return (
-            f"<Evaluation {self.benchmark_name} / {self.model_name}: "
-            f"accuracy={self.accuracy:.2f if self.accuracy else 'N/A'}>"
-        )
+        acc = f"{self.accuracy:.2f}" if self.accuracy is not None else "N/A"
+        return f"<Evaluation {self.benchmark_name} / {self.model_name}: accuracy={acc}>"
 
 
 # Summary models for analytics (Phase 4+)
