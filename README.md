@@ -2,14 +2,17 @@
 
 A production-grade, research-oriented autonomous AI agent powered by **Meta Muse Glimmer 30B**. This system combines multimodal inference, agentic tool use, scientific RAG, evidence verification, Python-based data analysis, and security evaluation to perform complex scientific literature research workflows.
 
-**Status**: Phase 1 (Minimal Inference) — In Progress
+**Status**: Phase 3 (Literature Search APIs) ✅ COMPLETE  
+**Total Code**: 4,900+ LOC  
+**Ready for**: Phase 4 (Vector Search & RAG)
 
-## Quick Start (Phase 1)
+## Quick Start
 
 ### Prerequisites
 - Python 3.10+
-- CUDA 12.1+ (RTX 4090, A100) OR CPU (slower)
-- 24–32 GB VRAM (with 4-bit quantization)
+- PostgreSQL 15+ (optional, for Phase 3+)
+- CUDA 12.1+ (RTX 4090, A100) OR CPU (for Phase 1 inference)
+- 24–32 GB VRAM (for Phase 1 with 4-bit quantization)
 
 ### Installation
 
@@ -29,14 +32,42 @@ pip install -r requirements.txt
 python src/core/inference.py
 ```
 
-### First Inference (Minimal)
+### Run Tests (No GPU Required)
+
+```bash
+make test                  # All tests
+make test-integration      # Integration tests only
+make demo-phase2           # Phase 2 tool demo (no GPU)
+```
+
+### Search Literature (Phase 3)
 
 ```python
-from src.core.inference import MuseGlimmerInference
+from src.research.apis import AggregatedSearchClient
 
-model = MuseGlimmerInference(quantization="4-bit")
-response = model.chat("What are the main mechanisms of CRISPR gene editing?")
-print(response)
+client = AggregatedSearchClient()
+papers = await client.search(
+    "CRISPR inherited blindness",
+    limit=20,
+    year_from=2020,
+)
+for paper in papers:
+    print(f"{paper.title} ({paper.year})")
+```
+
+### Run Agent with LLM (Phase 1, GPU Required)
+
+```python
+from src.core.orchestration import ResearchAgent, AgentState
+
+agent = ResearchAgent()
+state = AgentState()
+
+answer, state = await agent.query(
+    "What are the latest CRISPR advances for inherited blindness?",
+    session_state=state
+)
+print(answer)
 ```
 
 ## Architecture
@@ -65,35 +96,43 @@ Final Scientific Report (Traceable, reproducible)
 
 ## Phases
 
-- **Phase 1**: Minimal Glimmer Inference ✓ (current)
-- **Phase 2**: Tool-calling framework
-- **Phase 3**: Literature retrieval (PubMed, arXiv)
-- **Phase 4**: Scientific RAG
-- **Phase 5**: Evidence graph & claim extraction
-- **Phase 6**: Python sandbox & data analysis
-- **Phase 7**: Multimodal document understanding
-- **Phase 8**: Security layer (prompt injection detection)
-- **Phase 9**: Evaluation framework
-- **Phase 10**: Dashboard (Gradio/Streamlit)
-- **Phase 11**: Benchmark experiments
-- **Phase 12**: Research report & publication
+| Phase | Name | Status | LOC | Deliverables |
+|---|---|---|---|---|
+| 1 | Minimal Inference | ✅ | 1,200 | Muse Glimmer loading, inference |
+| 2 | Tool Calling & Orchestration | ✅ | 1,200 | Tool registry, agent orchestration |
+| 3 | Literature Search APIs | ✅ | 1,200 | PubMed, arXiv, OpenAlex, PostgreSQL |
+| 4 | Vector Search & RAG | 🔜 | 800 | Embeddings, pgvector, semantic search |
+| 5 | Evidence Graph | 🔜 | 600 | Claims, evidence linking |
+| 6 | Python Sandbox | 🔜 | 400 | Docker sandbox, safe execution |
+| 7 | Multimodal Documents | 🔜 | 400 | PDF parsing, figure extraction |
+| 8 | Security Hardening | 🔜 | 400 | Prompt injection defense |
+| 9 | Evaluation Framework | 🔜 | 300 | Benchmarks, metrics |
+| 10 | Dashboard & UI | 🔜 | 500 | Web interface, visualization |
+| 11 | Deployment | 🔜 | 300 | Docker, cloud, scaling |
+| 12 | Final Integration | 🔜 | 200 | Testing, documentation |
 
 ## Documentation
 
-- `ARCHITECTURE.md` — System design & components
-- `RESEARCH.md` — Research questions & methodology
-- `EVALUATION.md` — Benchmark definitions & metrics
-- `SECURITY.md` — Threat model & defenses
+- **[PROJECT_STATUS.md](PROJECT_STATUS.md)** — Complete project overview
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** — System design & components
+- **[RESEARCH.md](RESEARCH.md)** — Research questions & methodology
+- **[PHASE1_SUMMARY.md](PHASE1_SUMMARY.md)** — Phase 1 report
+- **[PHASE2_SUMMARY.md](PHASE2_SUMMARY.md)** — Phase 2 report
+- **[PHASE3_SUMMARY.md](PHASE3_SUMMARY.md)** — Phase 3 report
 
-## Evaluation & Benchmarks
+## Research Questions (Phase 11+)
 
-This project evaluates Muse Glimmer 30B against:
+Evaluates Muse Glimmer 30B on:
 
-- **SciCode** — Scientific problem-solving with code
-- **Custom Scientific Dataset** — Literature analysis tasks
-- **Comparative**: Gemma4-31B, Qwen3.6-27B
+- **RQ1**: Can local models do useful research? (Target: ≥70% task completion)
+- **RQ2**: Does RAG reduce hallucination? (Target: precision >0.85)
+- **RQ3**: Does tool use improve quality? (Target: +40% completion)
+- **RQ4**: Can agents detect contradictions? (Target: F1 ≥0.65)
+- **RQ5**: Resistant to prompt injection? (Target: <10% success)
+- **RQ6**: Muse vs. Gemma 4 / Qwen 3.6? (Target: Muse +20%)
+- **RQ7**: Quality-cost-latency tradeoff? (Target: Clear Pareto frontier)
 
-See `EVALUATION.md` for metrics & reproducibility.
+See `RESEARCH.md` for methodology.
 
 ## Hardware Requirements
 
