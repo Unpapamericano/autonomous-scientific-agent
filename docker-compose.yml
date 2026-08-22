@@ -1,0 +1,87 @@
+version: '3.9'
+
+services:
+  # Agent inference service
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    image: scientific-agent:latest
+    container_name: scientific-agent
+    
+    # GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    
+    # Environment
+    environment:
+      - MUSE_MODEL_ID=meta-models/Muse-Glimmer-30B
+      - MUSE_QUANTIZATION=4-bit
+      - MUSE_DEVICE=auto
+      - TRANSFORMERS_CACHE=/data/models
+      - HF_TOKEN=${HF_TOKEN:-}
+    
+    # Volumes
+    volumes:
+      - ./src:/app/src:ro
+      - ./configs:/app/configs:ro
+      - ./data:/data
+      - ./results:/results
+      - models_cache:/data/models
+    
+    # Ports
+    ports:
+      - "8000:8000"  # For API service (Phase 2+)
+    
+    # Resource limits
+    shm_size: 16gb
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    restart: on-failure
+
+  # PostgreSQL + pgvector (for RAG, Phase 4+)
+  postgres:
+    image: pgvector/pgvector:pg15-latest
+    container_name: scientific-agent-postgres
+    
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      POSTGRES_DB: scientific_agent
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./configs/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    
+    ports:
+      - "5432:5432"
+    
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+    restart: unless-stopped
+
+volumes:
+  models_cache:
+    driver: local
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: scientific-agent-network

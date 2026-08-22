@@ -1,0 +1,79 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Models & data (large files)
+models/
+data/
+*.gguf
+*.bin
+*.safetensors
+cache/
+.cache/
+
+# Experiments & results
+results/
+*.log
+*.json
+!configs/*.json
+.wandb/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# Docker
+.dockerignore
+
+# Test coverage
+.coverage
+.pytest_cache/
+htmlcov/
+
+# OS
+.DS_Store
+Thumbs.db
