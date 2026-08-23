@@ -1,98 +1,92 @@
-.PHONY: help install lint test format clean docker-build docker-run docker-logs inference benchmark demo-phase2 test-integration
-
-# Variables
-PYTHON := python3
-DOCKER_IMAGE := scientific-agent:latest
-DOCKER_CONTAINER := scientific-agent
+.PHONY: help install install-dev test test-unit test-integration test-all lint format clean setup run-agent run-dashboard benchmark docs
 
 help:
-	@echo "Autonomous Scientific Research Agent - Development Tasks"
+	@echo "Autonomous Scientific Research Agent - Build Commands"
 	@echo ""
-	@echo "Usage: make <target>"
+	@echo "Setup:"
+	@echo "  make install             Install base dependencies"
+	@echo "  make install-dev         Install dev + base dependencies"
+	@echo "  make setup               Initialize database & config"
 	@echo ""
-	@echo "Targets:"
-	@echo "  install           Install dependencies"
-	@echo "  lint              Run linters (flake8, mypy)"
-	@echo "  format            Format code (black, isort)"
-	@echo "  test              Run unit tests"
-	@echo "  test-integration  Run integration tests"
-	@echo "  test-security     Run security tests"
-	@echo "  clean             Remove build artifacts"
-	@echo "  inference         Run Phase 1 inference test"
-	@echo "  demo-phase2       Run Phase 2 tool orchestration demo"
-	@echo "  docker-build      Build Docker image"
-	@echo "  docker-run        Run containerized agent"
-	@echo "  docker-logs       View Docker logs"
-	@echo "  benchmark         Run evaluation benchmarks"
+	@echo "Testing:"
+	@echo "  make test                Run all tests"
+	@echo "  make test-unit           Run unit tests only"
+	@echo "  make test-integration    Run integration tests only"
+	@echo "  make test-security       Run security tests only"
+	@echo "  make test-all            Run all tests with coverage"
+	@echo ""
+	@echo "Code Quality:"
+	@echo "  make lint                Run linters (pylint, ruff)"
+	@echo "  make format              Format code (black, isort)"
+	@echo "  make clean               Remove cache & build files"
+	@echo ""
+	@echo "Running:"
+	@echo "  make run-agent           Run agent interactively"
+	@echo "  make run-dashboard       Start dashboard (http://localhost:5000)"
+	@echo "  make benchmark           Run Phase 11 benchmarks"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  make docs                Build Sphinx documentation"
+	@echo ""
 
 install:
-	@echo "Installing dependencies..."
-	$(PYTHON) -m pip install --upgrade pip setuptools wheel
-	$(PYTHON) -m pip install -r requirements.txt
-	@echo "✓ Installation complete"
+	pip install -r requirements.txt
 
-lint:
-	@echo "Running linters..."
-	$(PYTHON) -m flake8 src tests --max-line-length=100 --ignore=E501,W503
-	$(PYTHON) -m mypy src --ignore-missing-imports --no-error-summary 2>/dev/null || echo "Type checking complete"
-	@echo "✓ Linting complete"
+install-dev:
+	pip install -r requirements.txt
+	pip install -r requirements-dev.txt
 
-format:
-	@echo "Formatting code..."
-	$(PYTHON) -m black src tests --line-length=100
-	$(PYTHON) -m isort src tests
-	@echo "✓ Formatting complete"
+setup:
+	python scripts/init_db.py
+	cp config/config.yaml.example config/config.yaml
+	@echo "Setup complete! Edit config/config.yaml with your settings."
 
 test:
-	@echo "Running unit tests..."
-	$(PYTHON) -m pytest tests/unit -v --tb=short
+	pytest tests/ -v --tb=short
+
+test-unit:
+	pytest tests/unit/ -v --tb=short
 
 test-integration:
-	@echo "Running integration tests..."
-	$(PYTHON) -m pytest tests/integration -v --tb=short
+	pytest tests/integration/ -v --tb=short
 
 test-security:
-	@echo "Running security tests..."
-	$(PYTHON) -m pytest tests/security -v --tb=short
+	pytest tests/security/ -v --tb=short
+
+test-evaluation:
+	pytest tests/evaluation/ -v --tb=short
+
+test-dashboard:
+	pytest tests/dashboard/ -v --tb=short
+
+test-all:
+	pytest tests/ -v --cov=src --cov-report=html --cov-report=term
+	@echo "Coverage report: htmlcov/index.html"
+
+lint:
+	pylint src/ --exit-zero
+	ruff check src/
+
+format:
+	black src/ tests/ scripts/
+	isort src/ tests/ scripts/
 
 clean:
-	@echo "Cleaning build artifacts..."
-	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+	find . -type d -name __pycache__ -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	rm -rf build dist *.egg-info .pytest_cache .mypy_cache .coverage htmlcov
-	@echo "✓ Cleanup complete"
+	rm -rf .pytest_cache .mypy_cache .coverage htmlcov/
+	rm -rf build/ dist/ *.egg-info/
 
-inference:
-	@echo "Running Phase 1 inference test..."
-	$(PYTHON) -m src.core.inference
+run-agent:
+	python -m src.core.orchestration
 
-demo-phase2:
-	@echo "Running Phase 2 tool orchestration demo..."
-	$(PYTHON) -m scripts.phase2_demo
-
-docker-build:
-	@echo "Building Docker image..."
-	docker build -t $(DOCKER_IMAGE) -f Dockerfile .
-	@echo "✓ Image built: $(DOCKER_IMAGE)"
-
-docker-run:
-	@echo "Running containerized agent..."
-	docker-compose up -d
-	@echo "✓ Agent running (docker-compose up)"
-	@echo "View logs: make docker-logs"
-
-docker-logs:
-	@echo "Following Docker logs..."
-	docker-compose logs -f $(DOCKER_CONTAINER)
-
-docker-stop:
-	@echo "Stopping Docker containers..."
-	docker-compose down
-	@echo "✓ Containers stopped"
+run-dashboard:
+	python scripts/run_dashboard.py --port 5000
 
 benchmark:
-	@echo "Running evaluation benchmarks..."
-	$(PYTHON) -m evaluation.run
-	@echo "✓ Benchmarks complete. See evaluation/results/"
+	python scripts/benchmark.py --all
 
-.SILENT: help
+docs:
+	sphinx-build -b html docs/ docs/_build/
+
+.DEFAULT_GOAL := help

@@ -1,0 +1,46 @@
+# Development dependencies
+# Install with: pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Code Quality
+black>=23.0.0
+isort>=5.12.0
+pylint>=2.17.0
+flake8>=6.1.0
+ruff>=0.1.0
+
+# Testing
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+pytest-timeout>=2.1.0
+pytest-xdist>=3.5.0  # Parallel test execution
+coverage>=7.3.0
+
+# Documentation
+sphinx>=6.0.0
+sphinx-rtd-theme>=1.2.0
+sphinx-autodoc-typehints>=1.25.0
+myst-parser>=1.0.0
+
+# Jupyter & Interactive
+jupyter>=1.0.0
+ipython>=8.0.0
+notebook>=7.0.0
+ipykernel>=6.25.0
+
+# Type Checking
+mypy>=1.5.0
+types-requests
+types-PyYAML
+
+# Debugging
+ipdb>=0.13.0
+pdbpp>=0.10.0
+
+# Pre-commit hooks
+pre-commit>=3.5.0
+
+# Build
+build>=1.0.0
+twine>=4.0.0

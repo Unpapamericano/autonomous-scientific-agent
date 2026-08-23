@@ -1,0 +1,171 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-scientific-agent"
+version = "0.10.0"
+description = "A local multimodal LLM-based autonomous agent for scientific literature research"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Research Team", email = "support@example.com"},
+]
+keywords = [
+    "llm",
+    "scientific-research",
+    "autonomous-agent",
+    "literature-analysis",
+    "rag",
+    "vector-search",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "torch>=2.0.0",
+    "transformers>=4.30.0",
+    "pydantic>=2.0.0",
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "pgvector>=0.1.0",
+    "sentence-transformers>=2.2.0",
+    "pdfplumber>=0.10.0",
+    "pytesseract>=0.3.10",
+    "Pillow>=10.0.0",
+    "requests>=2.31.0",
+    "biopython>=1.81",
+    "arxiv>=1.4.0",
+    "pyyaml>=6.0",
+    "psutil>=5.9.0",
+    "networkx>=3.0",
+    "pytest>=7.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "pylint>=2.17.0",
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "jupyter>=1.0.0",
+    "ipython>=8.0.0",
+]
+gpu = [
+    "torch>=2.0.0,!=2.1.0",
+    "flash-attn>=2.0.0",
+]
+web = [
+    "flask>=2.3.0",
+    "flask-cors>=4.0.0",
+    "streamlit>=1.28.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/user/autonomous-scientific-agent"
+Documentation = "https://github.com/user/autonomous-scientific-agent/docs"
+Repository = "https://github.com/user/autonomous-scientific-agent.git"
+Issues = "https://github.com/user/autonomous-scientific-agent/issues"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # Directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+  | venv
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+skip_glob = ["*/migrations/*"]
+multi_line_mode = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.pylint.messages_control]
+disable = [
+    "C0330",  # Wrong hanging indentation before block
+    "C0326",  # Bad whitespace
+    "R0903",  # Too few public methods
+    "R0913",  # Too many arguments
+]
+
+[tool.pylint.format]
+max-line-length = 100
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--strict-markers -ra"
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "security: marks tests as security tests",
+    "gpu: marks tests requiring GPU",
+    "performance: marks tests measuring performance",
+]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+min_coverage = 80
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "W"]
+ignore = ["E501"]  # Line too long (handled by black)

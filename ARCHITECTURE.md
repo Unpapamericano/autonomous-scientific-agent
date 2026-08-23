@@ -1,379 +1,538 @@
-# ARCHITECTURE
+# System Architecture
 
-## System Overview
+## Overview
+
+Autonomous Scientific Research Agent is a modular, production-ready system for autonomous literature research. It combines:
+
+- **Local LLM** (Muse Glimmer 30B, 4-bit quantized)
+- **Multi-source retrieval** (PubMed, arXiv, OpenAlex)
+- **Vector search** (pgvector + semantic embeddings)
+- **Evidence graphs** (claims, contradictions, support links)
+- **Safe execution** (Docker sandbox with resource limits)
+- **Security layer** (injection detection + sanitization)
+- **Comprehensive evaluation** (RQ1–RQ7 benchmarks)
+
+---
+
+## Component Stack
 
 ```
-User Query (Research Question)
-    ↓
-┌─────────────────────────────────────────────┐
-│ Research Planner Agent                      │
-│ - Parse & decompose question                │
-│ - Generate search strategy                  │
-│ - Plan analysis workflow                    │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Literature Search Agent                     │
-│ - Query PubMed, arXiv, OpenAlex             │
-│ - Rank results by relevance                 │
-│ - Retrieve paper metadata                   │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Document Retrieval & Processing             │
-│ - Fetch full PDFs or abstracts              │
-│ - Extract text, figures, tables             │
-│ - Parse citations & metadata                │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Scientific RAG Pipeline                     │
-│ - Chunk documents                           │
-│ - Generate embeddings (sentence-trans)      │
-│ - Store in pgvector (PostgreSQL)            │
-│ - Retrieve top-k relevant chunks            │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Muse Glimmer 30B Inference (Core)           │
-│ - Tool-calling with structured schemas      │
-│ - Multimodal analysis (text + charts)       │
-│ - Long-context reasoning (131K tokens)      │
-│ - Failure recovery & retries                │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Evidence Extraction & Verification          │
-│ - Extract claims from LLM response          │
-│ - Map claims → source documents             │
-│ - Verify citations exist                    │
-│ - Calculate grounding confidence            │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Python Data Analysis Sandbox                │
-│ - Generate safe analysis code               │
-│ - Execute in isolated Docker container      │
-│ - Capture results, plots, statistics        │
-│ - Detect invalid/malicious code             │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Critical Evaluation Agent                   │
-│ - Assess study quality & bias               │
-│ - Identify contradictions                   │
-│ - Flag unsupported claims                   │
-│ - Score evidence grounding                  │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Evidence Graph & Knowledge Base             │
-│ - Build RDF/property graph structure        │
-│ - Connect claims ↔ evidence ↔ papers        │
-│ - Enable traceable lineage queries          │
-└─────────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────────┐
-│ Report Generation & Formatting              │
-│ - Synthesize findings                       │
-│ - Generate citations (BibTeX, RIS)          │
-│ - Create human-readable markdown            │
-│ - Include agent trajectory logs             │
-└─────────────────────────────────────────────┘
-    ↓
-Final Scientific Report (Reproducible, Traceable)
+┌──────────────────────────────────────────────────────────────┐
+│                     USER INTERFACE                           │
+│  ├─ Dashboard (HTML/JSON)                                    │
+│  ├─ CLI (scripts/run_agent.py)                               │
+│  └─ Python API (orchestration.py)                            │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+┌────────────────────────▼─────────────────────────────────────┐
+│          AGENT ORCHESTRATION (Phase 2)                       │
+│  ├─ Multi-turn conversation                                  │
+│  ├─ Tool calling & JSON parsing                              │
+│  ├─ State management                                         │
+│  └─ Error recovery                                           │
+└────────────────────────┬─────────────────────────────────────┘
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+    ┌───▼──┐  ┌─────────▼──────┐  ┌──────▼──┐
+    │Tools │  │ LLM Inference  │  │ Database │
+    └───┬──┘  │ (Phase 1)      │  │(Phase 3) │
+        │     └────────────────┘  └──────────┘
+    ┌───▼────────────────────────────────────┐
+    │   TOOL IMPLEMENTATIONS                 │
+    ├─ search_literature (Phase 3)           │
+    ├─ retrieve_context (Phase 4)            │
+    ├─ extract_claims (Phase 5)              │
+    ├─ check_contradictions (Phase 5)        │
+    ├─ execute_code (Phase 6)                │
+    ├─ extract_pdf (Phase 7)                 │
+    └─ detect_injection (Phase 8)            │
+    │                                        │
+    └────────────────┬───────────────────────┘
+                     │
+    ┌────────────────┼───────────────────────┐
+    │                │                       │
+┌───▼──────┐  ┌──────▼────────┐  ┌──────────▼──┐
+│Retrieval │  │ RAG Pipeline   │  │  Evidence   │
+│(Phase 3) │  │   (Phase 4)    │  │   Graph     │
+└──────────┘  └────────────────┘  │  (Phase 5)  │
+                    │              └─────────────┘
+    ┌───────────────▼──────────────┐
+    │  VECTOR SEARCH & EMBEDDINGS  │
+    │  ├─ Sentence Transformers    │
+    │  ├─ pgvector (PostgreSQL)    │
+    │  └─ FAISS (fallback)         │
+    └──────────────────────────────┘
+                    │
+    ┌───────────────▼──────────────┐
+    │   DOCUMENT PROCESSING        │
+    │  ├─ PDF extraction (Phase 7) │
+    │  ├─ Table parsing            │
+    │  ├─ OCR (fallback)           │
+    │  └─ Metadata extraction      │
+    └──────────────────────────────┘
+                    │
+    ┌───────────────▼──────────────┐
+    │   SECURITY LAYER (Phase 8)   │
+    │  ├─ Injection detection      │
+    │  ├─ Input sanitization       │
+    │  ├─ Audit logging            │
+    │  └─ Code validation          │
+    └──────────────────────────────┘
 ```
 
-## Core Components
-
-### 1. **Inference Engine** (`src/core/inference.py`)
-
-**Purpose**: Wrapper around Muse Glimmer 30B for local inference.
-
-**Capabilities**:
-- Quantized inference (4-bit, 8-bit, BF16)
-- Simple generation
-- Chat interface (single-turn)
-- Structured JSON output (tool calling)
-- Health checks
-
-**Hardware Options**:
-- Consumer GPU: RTX 4090 (4-bit, ~17GB VRAM)
-- Mac: 32GB unified memory (4-bit)
-- CPU: Fallback (slow)
-
-### 2. **Literature Search** (`src/research/`)
-
-**Purpose**: Retrieve scientific papers from multiple sources.
-
-**Sources** (Phase 3):
-- PubMed (biomedical)
-- arXiv (preprints)
-- OpenAlex (comprehensive)
-- Semantic Scholar (if API access available)
-
-**Outputs**:
-- Paper metadata (title, authors, abstract, DOI)
-- PDF URLs or full text
-- Citation networks
-
-### 3. **RAG Pipeline** (`src/rag/`)
-
-**Purpose**: Embed, store, and retrieve relevant context for LLM.
-
-**Components**:
-- **Chunking**: Fixed size + sliding window
-- **Embedding**: `sentence-transformers/all-mpnet-base-v2`
-- **Storage**: PostgreSQL + pgvector
-- **Retrieval**: Top-k similarity search
-
-**Optimization**:
-- Hybrid search (BM25 + semantic)
-- Re-ranking via cross-encoder
-
-### 4. **Security Layer** (`src/security/`)
-
-**Purpose**: Defend against adversarial inputs and code injection.
-
-**Threat Model**:
-- Prompt injection via scientific papers
-- Malicious code execution
-- Data exfiltration
-- Unauthorized tool calls
-
-**Defenses**:
-- Input sanitization & validation
-- Sandboxed code execution (Docker)
-- Rate limiting & quota enforcement
-- Audit logging
-
-### 5. **Analysis Sandbox** (`src/analysis/`)
-
-**Purpose**: Execute data analysis code safely.
-
-**Execution Environment**:
-- Isolated Docker container per request
-- Resource limits (CPU, memory, time)
-- Restricted filesystem (read-only source, writable /tmp)
-- No network access
-
-**Supported Operations**:
-- Python data manipulation (pandas, numpy)
-- Statistics (scipy, scikit-learn)
-- Visualization (matplotlib, seaborn)
-- Scientific computing
-
-### 6. **REST API** (`src/api/`)
-
-**Purpose**: Expose system as HTTP endpoints.
-
-**Endpoints** (Phase 2+):
-- `POST /research` — Submit research question
-- `GET /research/{id}` — Retrieve result
-- `GET /research/{id}/trajectory` — Agent execution trace
-- `GET /research/{id}/evidence` — Extracted evidence
-- `GET /research/{id}/sources` — Retrieved papers
-- `POST /evaluation/run` — Start benchmark
-
-### 7. **Database** (`configs/`)
-
-**Purpose**: Persistent storage for structured data.
-
-**Schema** (PostgreSQL + pgvector):
-- `papers` — Metadata, URLs, full text
-- `chunks` — Text segments with embeddings
-- `claims` — Extracted assertions
-- `evidence` — Supporting passages
-- `citations` — Paper-to-paper references
-- `experiments` — Benchmark runs
-- `trajectories` — Agent execution logs
+---
 
 ## Data Flow
 
-### Example: CRISPR Research Question
+### Research Query Workflow
 
-**User Input**:
 ```
-"What are the latest advances in CRISPR-based therapeutics for inherited blindness?"
-```
+1. USER INPUT
+   └─> Injection Detection (Phase 8)
+       ├─ Block if CRITICAL
+       └─ Sanitize input
 
-**Phase 1: Planning**
-```json
-{
-  "research_question": "What are the latest advances in CRISPR-based therapeutics for inherited blindness?",
-  "sub_questions": [
-    "What are the main inherited blindness diseases targeted by CRISPR?",
-    "What delivery mechanisms are used?",
-    "What are clinical trial results?"
-  ],
-  "search_terms": [
-    "CRISPR blindness",
-    "RPE65 gene therapy",
-    "inherited retinal disease CRISPR"
-  ]
-}
-```
+2. AGENT ORCHESTRATION (Phase 2)
+   └─> Forward to LLM with context
 
-**Phase 2: Literature Search**
-- Query PubMed for papers from 2022–2026
-- Results: 150 papers, rank by relevance
+3. LLM DECISION (Phase 1)
+   └─> Call appropriate tool
 
-**Phase 3: Document Processing**
-- Retrieve abstracts & full PDFs
-- Extract key claims, figures, methods
-
-**Phase 4: RAG**
-- Embed 5,000 document chunks
-- Store in pgvector
-- Retrieve top-10 for each sub-question
-
-**Phase 5: Agent Reasoning**
-- Muse Glimmer analyzes retrieved context
-- Generates claims with confidence scores
-- Tools: search, execute analysis, read tables
-
-**Phase 6: Evidence Grounding**
-- Verify each claim is cited in source documents
-- Calculate citation precision/recall
-
-**Phase 7: Data Analysis**
-- Extract clinical trial success rates
-- Generate comparison table
-- Sandbox execution of Python analysis
-
-**Phase 8: Evaluation**
-- Critical review of evidence
-- Detect contradictions between studies
-- Identify gaps & limitations
-
-**Phase 9: Report**
-- Generate markdown report
-- Include citations, figures, evidence links
-- Agent trajectory for reproducibility
-
----
-
-## Technology Stack
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| **LLM Inference** | Unsloth + llama.cpp | Quantized Muse Glimmer |
-| **Orchestration** | LangChain / LLaMA-Index | Agentic workflows |
-| **Vector Search** | PostgreSQL + pgvector | Semantic retrieval |
-| **Embeddings** | Sentence-Transformers | Text representation |
-| **REST API** | FastAPI | HTTP endpoints |
-| **Code Sandbox** | Docker + resource limits | Safe execution |
-| **Database** | PostgreSQL | Structured storage |
-| **Observability** | Structlog + JSON logging | Audit trail |
-| **Testing** | pytest | Unit/integration tests |
-| **Containerization** | Docker + docker-compose | Reproducible deployment |
-
-## Phases & Milestones
-
-- ✓ **Phase 1**: Minimal inference (current)
-- **Phase 2**: Tool calling & orchestration
-- **Phase 3**: Literature retrieval APIs
-- **Phase 4**: RAG pipeline
-- **Phase 5**: Evidence graph
-- **Phase 6**: Python sandbox
-- **Phase 7**: Multimodal analysis
-- **Phase 8**: Security layer
-- **Phase 9**: Evaluation framework
-- **Phase 10**: Dashboard
-- **Phase 11**: Benchmarks
-- **Phase 12**: Research report
-
----
-
-## Design Decisions
-
-### Why Muse Glimmer 30B?
-- Optimized for local agentic workflows (no API dependency)
-- Strong on tool-calling & long-context
-- Multimodal (text + image)
-- Apache 2.0 license (no restrictions)
-
-### Why PostgreSQL + pgvector?
-- Native vector search (pgvector extension)
-- Structured metadata (papers, claims, evidence)
-- Transaction support for consistency
-- Rich query language (SQL)
-
-### Why Sandbox for Code Execution?
-- **Security**: Arbitrary code execution is dangerous
-- **Isolation**: Prevents accidental state corruption
-- **Resource limits**: Prevents DoS
-- **Auditability**: Every execution is logged
-
-### Why Multiple Retrieval Sources?
-- **PubMed**: Biomedical domain expertise
-- **arXiv**: Preprints & frontier research
-- **OpenAlex**: Cross-disciplinary coverage
-- **Diversification**: Reduces bias from single source
-
----
-
-## Error Handling & Failure Recovery
-
-### Graceful Degradation
-
-| Failure | Recovery |
-|---|---|
-| Model loading fails | Fallback to smaller model or CPU |
-| Paper retrieval times out | Continue with cached results |
-| Code execution crashes | Return error + sandbox logs |
-| API rate limit exceeded | Retry with exponential backoff |
-| Evidence grounding fails | Flag as "unverified" in report |
-
-### Observability
-
-Every action is logged with:
-```json
-{
-  "timestamp": "2026-01-15T10:30:45.123Z",
-  "agent": "research_planner",
-  "action": "decompose_question",
-  "input": "...",
-  "output": "...",
-  "latency_ms": 234,
-  "status": "success"
-}
-```
-
-User can query: `GET /research/{id}/trajectory` to see full execution.
-
----
-
-## Security Model
-
-### Threat Model
-
-1. **Prompt Injection** — Malicious text in retrieved papers
-   - **Defense**: Input sanitization, format validation
+4. TOOL EXECUTION
    
-2. **Code Injection** — Malicious Python in generated analysis
-   - **Defense**: AST analysis, sandboxed execution
-   
-3. **Data Exfiltration** — Agent exfiltrates sensitive data
-   - **Defense**: No network access in sandbox, audit logging
-   
-4. **Unauthorized Tool Calls** — Agent calls tools it shouldn't
-   - **Defense**: Schema validation, rate limiting
+   a) SEARCH_LITERATURE (Phase 3)
+      ├─ Query PubMed, arXiv, OpenAlex
+      ├─ Retrieve papers & metadata
+      ├─ Store in PostgreSQL
+      └─> Send to RAG Pipeline
 
-### Principle of Least Privilege
+   b) RETRIEVE_CONTEXT (Phase 4)
+      ├─ Query vector search (pgvector)
+      ├─ Rank by relevance
+      ├─> Return chunks & scores
 
-- API has read-only access to most data
-- Code execution sandbox has no network
-- Database user has minimal permissions
-- Models are loaded read-only
+   c) EXTRACT_CLAIMS (Phase 5)
+      ├─ Parse paper abstracts/text
+      ├─ Extract structured claims
+      ├─> Link to evidence graph
+
+   d) CHECK_CONTRADICTIONS (Phase 5)
+      ├─ Compare claim pairs
+      ├─ Semantic similarity check
+      ├─-> Flag contradictions
+
+   e) EXECUTE_CODE (Phase 6)
+      ├─ Sanitize code
+      ├─ Run in Docker sandbox
+      ├─ Resource limits (512MB RAM)
+      ├─-> Return results
+
+   f) EXTRACT_PDF (Phase 7)
+      ├─ Parse PDF (pdfplumber)
+      ├─ Extract text/tables/figures
+      ├─ OCR fallback
+      ├─-> Index to vector store
+
+5. EVIDENCE AGGREGATION (Phase 5)
+   ├─ Collect claims & contradictions
+   ├─ Build evidence graph
+   └─-> Generate summary
+
+6. LLM SYNTHESIS (Phase 1)
+   └─> Generate final answer
+
+7. EVALUATION & LOGGING (Phase 8-9)
+   ├─ Record metrics
+   ├─ Update dashboard
+   └─> Audit trail
+```
+
+---
+
+## Phase Responsibilities
+
+### Phase 1: LLM Inference
+**Responsibility**: Language understanding & generation
+- Load Muse Glimmer 30B (4-bit quantized)
+- Parse user queries
+- Understand tool descriptions
+- Generate JSON tool calls
+- Synthesize answers from context
+
+**Dependencies**: `torch`, `transformers`
+**Files**: `src/core/inference.py`
+
+### Phase 2: Orchestration
+**Responsibility**: Multi-turn conversation management
+- Maintain conversation history
+- Parse tool calls from LLM output
+- Execute tools with error handling
+- Format tool results for LLM
+- Implement reasoning loops
+
+**Dependencies**: Phase 1, `pydantic`
+**Files**: `src/core/orchestration.py`, `src/core/tools.py`
+
+### Phase 3: Literature Search
+**Responsibility**: Retrieve scientific papers
+- Query PubMed, arXiv, OpenAlex in parallel
+- Deduplicate results
+- Rank by relevance
+- Store in PostgreSQL
+- Cache results
+
+**Dependencies**: `biopython`, `arxiv`, `requests`, `sqlalchemy`
+**Files**: `src/research/apis.py`, `src/rag/database.py`
+
+### Phase 4: RAG Pipeline
+**Responsibility**: Semantic retrieval & ranking
+- Generate embeddings (Sentence Transformers)
+- Store vectors in pgvector
+- Search by semantic similarity
+- Re-rank results
+- FAISS fallback for in-memory
+
+**Dependencies**: `sentence-transformers`, `pgvector`, `faiss-cpu`
+**Files**: `src/rag/embeddings.py`, `src/rag/vector_search.py`
+
+### Phase 5: Evidence Graph
+**Responsibility**: Claim extraction & contradiction detection
+- Extract claims from papers
+- Link claims to source documents
+- Detect contradictions between claims
+- Build evidence support/dispute graphs
+- Aggregate evidence strength
+
+**Dependencies**: Phase 4, `networkx`
+**Files**: `src/rag/claim_extraction.py`, `src/rag/evidence_graph.py`
+
+### Phase 6: Code Sandbox
+**Responsibility**: Safe code execution
+- Validate Python code (block dangerous imports)
+- Execute in Docker container (512MB RAM, no network)
+- Capture output & errors
+- Fallback to local execution
+- Enforce timeout limits
+
+**Dependencies**: `docker`, `subprocess`
+**Files**: `src/analysis/sandbox.py`, `Sandbox.dockerfile`
+
+### Phase 7: PDF Processing
+**Responsibility**: Multimodal document extraction
+- Extract text from PDFs (pdfplumber)
+- Detect & parse tables
+- Identify figures & captions
+- OCR fallback (pytesseract)
+- Index extracted content
+
+**Dependencies**: `pdfplumber`, `pytesseract`, `Pillow`
+**Files**: `src/rag/document_extraction.py`, `src/rag/multimodal_indexing.py`
+
+### Phase 8: Security
+**Responsibility**: Attack detection & input validation
+- Detect prompt injection (7 attack types)
+- Sanitize inputs (XSS, length, control chars)
+- Block dangerous patterns
+- Audit logging (injection, code execution, tool access)
+- Confidence scoring
+
+**Dependencies**: `regex`
+**Files**: `src/security/prompt_injection_detector.py`, `src/security/input_sanitizer.py`
+
+### Phase 9: Evaluation
+**Responsibility**: Benchmarking framework
+- Define RQ1–RQ7 metrics
+- Manage benchmark datasets
+- Orchestrate evaluation runs
+- Generate reports (JSON/Markdown)
+- Collect system metrics
+
+**Dependencies**: `dataclasses`, `datetime`
+**Files**: `src/evaluation/metrics.py`, `src/evaluation/benchmarks.py`
+
+### Phase 10: Dashboard
+**Responsibility**: Visualization & monitoring
+- Store evaluation reports
+- Visualize metrics (Chart.js)
+- Monitor system health (CPU, memory)
+- Export results (HTML, JSON)
+- Health checks
+
+**Dependencies**: `flask` (optional), `psutil`
+**Files**: `src/dashboard/app.py`, `src/dashboard/metrics_view.py`
+
+---
+
+## Database Schema
+
+### Core Tables (PostgreSQL)
+
+```sql
+-- Papers
+CREATE TABLE papers (
+    id UUID PRIMARY KEY,
+    title TEXT,
+    abstract TEXT,
+    authors TEXT[],
+    published_date DATE,
+    source VARCHAR(50),  -- pubmed, arxiv, openalex
+    url TEXT,
+    doi TEXT UNIQUE,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Document Chunks (for RAG)
+CREATE TABLE document_chunks (
+    id UUID PRIMARY KEY,
+    paper_id UUID REFERENCES papers(id),
+    content TEXT,
+    chunk_index INTEGER,
+    start_char INTEGER,
+    end_char INTEGER,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Vector Embeddings (pgvector)
+CREATE TABLE embeddings (
+    id UUID PRIMARY KEY,
+    chunk_id UUID REFERENCES document_chunks(id),
+    embedding vector(384),  -- Sentence Transformers dimension
+    similarity_score FLOAT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+CREATE INDEX ON embeddings USING ivfflat (embedding vector_cosine_ops);
+
+-- Claims (Evidence Graph)
+CREATE TABLE claims (
+    id UUID PRIMARY KEY,
+    paper_id UUID REFERENCES papers(id),
+    claim_text TEXT,
+    confidence FLOAT,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Contradictions
+CREATE TABLE contradictions (
+    id UUID PRIMARY KEY,
+    claim_a_id UUID REFERENCES claims(id),
+    claim_b_id UUID REFERENCES claims(id),
+    contradiction_score FLOAT,
+    explanation TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Evaluation Results
+CREATE TABLE evaluation_results (
+    id UUID PRIMARY KEY,
+    run_id VARCHAR(255),
+    test_id VARCHAR(255),
+    metric_name VARCHAR(255),
+    metric_value FLOAT,
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## Configuration Flow
+
+```
+config/config.yaml (YAML)
+         │
+         ▼
+src/config/__init__.py (Loader)
+         │
+         ▼
+Pydantic Config Models
+         │
+    ┌────┴────┬────────┬──────────┐
+    │          │        │          │
+    ▼          ▼        ▼          ▼
+ Phase 1     Phase 3  Phase 4   Phase 6
+ (LLM)     (Database)(Search) (Sandbox)
+```
+
+---
+
+## Error Handling
+
+### Resilience Pattern
+
+```python
+try:
+    primary_approach()
+except Exception as e:
+    log_error(e)
+    fallback_approach()
+```
+
+### Examples
+
+| Component | Primary | Fallback |
+|-----------|---------|----------|
+| Vector Search | pgvector | FAISS (in-memory) |
+| PDF Extraction | pdfplumber | pytesseract (OCR) |
+| Code Execution | Docker | Local (safe mode) |
+| Database | PostgreSQL | SQLite |
+| Embeddings | Sentence Transformers | TF-IDF (last resort) |
+
+---
+
+## Performance Characteristics
+
+### Latency by Component
+
+```
+┌─ Search Literature ─────────── 1-5 seconds ┐
+├─ Vector Search (10 results) ── 100-500 ms   │
+├─ PDF Extraction ───────────── 500 ms-2 s    │
+├─ LLM Inference ────────────── 2-10 seconds  │
+├─ Contradiction Detection ───── 100-200 ms   │
+└─ Dashboard Rendering ────────── 50-200 ms   ┘
+  
+Total end-to-end: 5-30 seconds per query
+```
+
+### Memory Usage
+
+```
+┌─ LLM (4-bit, 70B) ─────────── ~14 GB ─┐
+├─ Vector Store (pgvector) ────── 1-5 GB │
+├─ Sandbox Docker Image ──────── 500 MB │
+├─ Cache (embeddings) ──────────── <2 GB │
+└─ Database (PostgreSQL) ──────── 5-10 GB┘
+
+Total: 20-30 GB (can be reduced with smaller models)
+```
+
+---
+
+## Scalability Considerations
+
+### Current (Phase 10)
+- Single-threaded test execution
+- In-process evaluation
+- Local caching
+
+### Phase 11+
+- Distributed evaluation (multi-worker)
+- Batch processing
+- Result aggregation
+- Horizontal scaling (multiple agents)
+
+### Future Improvements
+- Multi-GPU inference
+- Sharded vector store
+- Message queues (for tool calls)
+- Microservices architecture
+
+---
+
+## Security Architecture
+
+```
+┌──────────────────────────────┐
+│    User Input / PDF Content  │
+└────────────┬─────────────────┘
+             │
+     ┌───────▼────────┐
+     │ Injection Check │ ─────> Block if CRITICAL
+     │                │ ─────> Warn if HIGH/MEDIUM
+     └───────┬────────┘
+             │
+     ┌───────▼────────┐
+     │  Sanitization  │ ─────> Remove XSS, control chars
+     │                │ ─────> Enforce length limits
+     └───────┬────────┘
+             │
+     ┌───────▼────────┐
+     │ Code Validation│ ─────> Block dangerous imports
+     │                │ ─────> Validate syntax
+     └───────┬────────┘
+             │
+     ┌───────▼────────┐
+     │ Safe Execution │ ─────> Docker sandbox
+     │                │ ─────> Resource limits
+     └───────┬────────┘
+             │
+     ┌───────▼────────┐
+     │ Audit Logging  │ ─────> Record all events
+     │                │ ─────> Compliance trail
+     └────────────────┘
+```
+
+---
+
+## Testing Strategy
+
+```
+Unit Tests (fast, isolated)
+├─ Phase 1: LLM inference mocking
+├─ Phase 2: Tool calling logic
+├─ Phase 3: API response parsing
+├─ Phase 4: Embeddings computation
+├─ Phase 5: Claim extraction
+├─ Phase 6: Code validation
+├─ Phase 7: PDF parsing
+├─ Phase 8: Security detection
+├─ Phase 9: Metrics calculation
+└─ Phase 10: Dashboard rendering
+
+Integration Tests (slower, real components)
+├─ Database operations
+├─ Literature search (with mocks)
+├─ RAG pipeline end-to-end
+├─ Evidence graph building
+├─ Sandbox execution
+└─ Dashboard queries
+
+Evaluation Tests (benchmarks)
+├─ RQ1–RQ7 metrics
+├─ Benchmark datasets
+├─ Report generation
+└─ Dashboard export
+```
+
+---
+
+## Deployment
+
+### Development
+```bash
+docker-compose -f docker-compose.dev.yml up
+```
+
+### Staging
+```bash
+docker-compose -f docker-compose.staging.yml up
+```
+
+### Production
+```bash
+docker-compose -f docker-compose.prod.yml up
+# or Kubernetes
+kubectl apply -f k8s/
+```
 
 ---
 
 ## Future Enhancements
 
-- Multi-turn conversation with context window management
-- Fine-tuning on domain-specific scientific tasks
-- Distributed inference (multi-GPU)
-- Real-time streaming output
-- Integration with scientific software (R, Julia)
-- Blockchain-based evidence provenance
+1. **Multi-modal LLMs** (GPT-4V, Claude 3.5 Vision)
+2. **Distributed inference** (vLLM, Ray)
+3. **Fine-tuned models** (domain-specific)
+4. **Real-time updates** (WebSocket dashboard)
+5. **Automated remediation** (self-healing)
+6. **Advanced UI** (React/Vue dashboard)
+7. **Export formats** (PDF reports, LaTeX)
+8. **Multi-language support**
+
+---
+
+**Last Updated**: Phase 10 Complete  
+**Architecture Version**: 1.0

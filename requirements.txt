@@ -1,72 +1,50 @@
-# Core LLM & Inference
-torch>=2.1.0
-transformers>=4.40.0
-peft>=0.8.0
+# Core dependencies for Autonomous Scientific Research Agent
+# Python 3.11+
 
-# Unsloth for optimized inference (PHASE 1)
-unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git
-xformers>=0.0.23
-
-# LLM Orchestration & Agents
-langchain>=0.1.0
-langgraph>=0.0.1
-
-# Vector Search & RAG
-pgvector>=0.2.0
-psycopg2-binary>=2.9.0
-sentence-transformers>=2.2.0
-numpy>=1.24.0
-
-# Web Requests & APIs
-httpx>=0.25.0
-requests>=2.31.0
+# LLM & Transformers
+torch>=2.0.0,!=2.1.0
+transformers>=4.30.0
+peft>=0.4.0  # For LoRA fine-tuning
+accelerate>=0.20.0  # For distributed inference
 
 # Data Processing
-pydantic>=2.5.0
-pydantic-settings>=2.1.0
-pandas>=2.1.0
+pydantic>=2.0.0
+pyyaml>=6.0
+pandas>=2.0.0
 numpy>=1.24.0
 
-# Database & ORM
+# Database
 sqlalchemy>=2.0.0
-alembic>=1.12.0
+psycopg2-binary>=2.9.0
+pgvector>=0.1.0
+alembic>=1.12.0  # Database migrations
 
-# REST API
-fastapi>=0.104.0
-uvicorn[standard]>=0.24.0
+# Search & Information Retrieval
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+requests>=2.31.0
+biopython>=1.81
+arxiv>=1.4.0
 
-# Scientific Computing
+# Document Processing
+pdfplumber>=0.10.0
+pytesseract>=0.3.10
+Pillow>=10.0.0
+openpyxl>=3.1.0
+
+# NLP & Text Processing
+nltk>=3.8.0
 scikit-learn>=1.3.0
-scipy>=1.11.0
-matplotlib>=3.8.0
-seaborn>=0.13.0
+
+# System & Utilities
+psutil>=5.9.0
+python-dotenv>=1.0.0
+networkx>=3.0
+tqdm>=4.66.0
 
 # Testing
-pytest>=7.4.0
-pytest-asyncio>=0.22.0
-pytest-cov>=4.1.0
-
-# Logging & Monitoring
-python-json-logger>=2.0.0
-structlog>=23.2.0
-
-# Environment & Config
-python-dotenv>=1.0.0
-pyyaml>=6.0
-
-# Utilities
-tqdm>=4.66.0
-click>=8.1.0
-
-# Security & Hashing
-cryptography>=41.0.0
-
-# PDF Processing (for Phase 3)
-pypdf>=3.17.0
-pdfplumber>=0.10.0
-
-# Development
-black>=23.11.0
-flake8>=6.1.0
-isort>=5.12.0
-mypy>=1.7.0
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-asyncio>=0.21.0
+pytest-mock>=3.11.0
+mock>=5.1.0
