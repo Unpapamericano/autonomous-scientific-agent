@@ -5,7 +5,7 @@ AUTONOMOUS SCIENTIFIC RESEARCH AGENT - RESUME LATER GUIDE
 PROJECT LOCATION:
 C:\Users\49174\projects\autonomous-scientific-agent\
 
-STATUS: Phase 8 (Security Hardening) COMPLETE. Phase 9 (Evaluation Framework) next.
+STATUS: Phase 10 (Dashboard & UI) COMPLETE. Phase 11 (Benchmarking & Experiments) next.
 
 --------------------------------------------------------
 HOW TO RESUME WORK (COPY-PASTE THESE STEPS)
@@ -60,12 +60,17 @@ Phase 8 - Security hardening: prompt injection detection (7 attack types),
           input sanitization (whitespace/length/XSS), audit logging
           (src/security/prompt_injection_detector.py, input_sanitizer.py,
           security_audit.py)
+Phase 9 - Evaluation framework: RQ1-RQ7 metrics, benchmark datasets,
+          evaluation orchestration, report generation (JSON/Markdown)
+          (src/evaluation/metrics.py, benchmarks.py, evaluator.py,
+          report_generator.py)
+Phase 10 - Dashboard & UI: visualization, system monitoring, report display
+          (src/dashboard/app.py, metrics_view.py, system_status.py)
 
 --------------------------------------------------------
 WHAT'S NEXT (IN ORDER)
 --------------------------------------------------------
-Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks) <- CURRENT
-Phase 10 - Dashboard / UI
+Phase 11 - Benchmarking & experiments (RQ1-RQ7 evaluation runs) <- CURRENT
 Phase 11 - Deployment
 Phase 12 - Final integration & report
 
@@ -86,12 +91,13 @@ RAG pipeline            src/rag/pipeline.py
 RAG agent tool          src/rag/rag_tool.py
 Claim extraction        src/rag/claim_extraction.py
 Evidence graph          src/rag/evidence_graph.py
-Evidence agent tools    src/rag/evidence_tool.py
-Python sandbox          src/analysis/sandbox.py
-Injection detection       src/security/prompt_injection_detector.py
-Input sanitizer           src/security/input_sanitizer.py
-Security audit logging    src/security/security_audit.py
-Security tests            tests/security/test_security.py
+Metrics calculator         src/evaluation/metrics.py
+Benchmark datasets        src/evaluation/benchmarks.py
+Evaluation orchestration  src/evaluation/evaluator.py
+Report generator          src/evaluation/report_generator.py
+Dashboard app             src/dashboard/app.py
+Metrics visualization     src/dashboard/metrics_view.py
+System monitoring         src/dashboard/system_status.py
 
 --------------------------------------------------------
 USEFUL COMMANDS
