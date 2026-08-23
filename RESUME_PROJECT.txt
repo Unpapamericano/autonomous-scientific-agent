@@ -5,7 +5,7 @@ AUTONOMOUS SCIENTIFIC RESEARCH AGENT - RESUME LATER GUIDE
 PROJECT LOCATION:
 C:\Users\49174\projects\autonomous-scientific-agent\
 
-STATUS: Phase 5 (Evidence Graph & Contradiction Detection) COMPLETE. Phase 6 (Python Sandbox) next.
+STATUS: Phase 6 (Python Sandbox for Code Execution) COMPLETE. Phase 7 (Multimodal Documents) next.
 
 --------------------------------------------------------
 HOW TO RESUME WORK (COPY-PASTE THESE STEPS)
@@ -48,12 +48,15 @@ Phase 5 - Evidence graph & contradiction detection: heuristic claim
           extraction, claim-vs-chunk evidence linking, claim-vs-claim
           contradiction/support detection, extract_claims + check_contradictions
           agent tools (src/rag/claim_extraction.py, evidence_graph.py, evidence_tool.py)
+Phase 6 - Python sandbox for code execution: Docker-based isolation with
+          resource limits (512MB RAM, no network, max 10 processes), fallback
+          to Phase 2's local exec + import blocking when Docker unavailable
+          (src/analysis/sandbox.py, sandbox_tool.py, Sandbox.dockerfile)
 
 --------------------------------------------------------
 WHAT'S NEXT (IN ORDER)
 --------------------------------------------------------
-Phase 6  - Python sandbox (Docker-based safe code execution) <- CURRENT
-Phase 7  - Multimodal document understanding (PDF/figures/tables)
+Phase 7  - Multimodal document understanding (PDF/figures/tables) <- CURRENT
 Phase 8  - Security layer (prompt injection defense)
 Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks)
 Phase 10 - Dashboard / UI
@@ -78,6 +81,9 @@ RAG agent tool          src/rag/rag_tool.py
 Claim extraction        src/rag/claim_extraction.py
 Evidence graph          src/rag/evidence_graph.py
 Evidence agent tools    src/rag/evidence_tool.py
+Python sandbox          src/analysis/sandbox.py
+Sandbox agent tool      src/analysis/sandbox_tool.py
+Sandbox Dockerfile      Sandbox.dockerfile
 Integration tests       tests/integration/
 Demo script             scripts/phase2_demo.py
 
@@ -102,5 +108,5 @@ and reference this file if the assistant needs context on
 where things stand.
 
 ========================================================
-Last updated: Phase 5 complete (tests passing: 62 passed, 13 skipped)
+Last updated: Phase 6 complete (tests passing: 80 passed, 13 skipped)
 ========================================================
