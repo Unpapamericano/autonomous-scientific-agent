@@ -5,7 +5,7 @@ AUTONOMOUS SCIENTIFIC RESEARCH AGENT - RESUME LATER GUIDE
 PROJECT LOCATION:
 C:\Users\49174\projects\autonomous-scientific-agent\
 
-STATUS: Phase 7 (Multimodal Documents) COMPLETE. Phase 8 (Security Hardening) next.
+STATUS: Phase 8 (Security Hardening) COMPLETE. Phase 9 (Evaluation Framework) next.
 
 --------------------------------------------------------
 HOW TO RESUME WORK (COPY-PASTE THESE STEPS)
@@ -56,12 +56,15 @@ Phase 7 - Multimodal document understanding: extract text, tables, figures
           from PDFs using pdfplumber + OCR fallback, embed and index in DB,
           link to evidence graph for RAG
           (src/rag/document_extraction.py, multimodal_indexing.py, document_tool.py)
+Phase 8 - Security hardening: prompt injection detection (7 attack types),
+          input sanitization (whitespace/length/XSS), audit logging
+          (src/security/prompt_injection_detector.py, input_sanitizer.py,
+          security_audit.py)
 
 --------------------------------------------------------
 WHAT'S NEXT (IN ORDER)
 --------------------------------------------------------
-Phase 8  - Security layer (prompt injection defense) <- CURRENT
-Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks)
+Phase 9  - Evaluation framework (RQ1-RQ7 benchmarks) <- CURRENT
 Phase 10 - Dashboard / UI
 Phase 11 - Deployment
 Phase 12 - Final integration & report
@@ -85,11 +88,10 @@ Claim extraction        src/rag/claim_extraction.py
 Evidence graph          src/rag/evidence_graph.py
 Evidence agent tools    src/rag/evidence_tool.py
 Python sandbox          src/analysis/sandbox.py
-Multimodal extraction      src/rag/document_extraction.py
-Multimodal indexing        src/rag/multimodal_indexing.py
-Document agent tool        src/rag/document_tool.py
-Integration tests          tests/integration/
-Demo script                scripts/phase2_demo.py
+Injection detection       src/security/prompt_injection_detector.py
+Input sanitizer           src/security/input_sanitizer.py
+Security audit logging    src/security/security_audit.py
+Security tests            tests/security/test_security.py
 
 --------------------------------------------------------
 USEFUL COMMANDS
@@ -112,5 +114,5 @@ and reference this file if the assistant needs context on
 where things stand.
 
 ========================================================
-Last updated: Phase 7 complete (tests passing: 97 passed, 14 skipped)
+Last updated: Phase 8 complete (tests passing: 122 passed, 14 skipped)
 ========================================================
