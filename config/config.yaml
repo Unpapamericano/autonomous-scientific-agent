@@ -1,0 +1,310 @@
+# Autonomous Scientific Agent - Configuration
+# This file contains all configurable parameters for the system
+
+# ============================================================
+# PROJECT METADATA
+# ============================================================
+project:
+  name: "Autonomous Scientific Research Agent"
+  version: "0.10.0"
+  description: "A local multimodal LLM-based autonomous agent for scientific literature research"
+  author: "Research Team"
+  license: "MIT"
+  repository: "https://github.com/user/autonomous-scientific-agent"
+
+# ============================================================
+# LLM CONFIGURATION (Phase 1)
+# ============================================================
+llm:
+  model: "meta-llama/Llama-2-70b-chat-hf"  # Can also be "mistralai/Mistral-7B", etc.
+  quantization: "4-bit"  # Options: "2-bit", "4-bit", "8-bit", "bf16"
+  device_map: "auto"  # Options: "auto", "cuda:0", "cpu"
+  max_new_tokens: 2048
+  temperature: 0.7
+  top_p: 0.95
+  top_k: 50
+  timeout_seconds: 300
+  cache_dir: "./data/cache/models"
+
+# ============================================================
+# LITERATURE SEARCH CONFIGURATION (Phase 3)
+# ============================================================
+literature_search:
+  # PubMed API
+  pubmed:
+    enabled: true
+    max_results: 100
+    email: "your-email@example.com"  # Required for PubMed
+    batch_size: 10
+    timeout_seconds: 30
+
+  # arXiv API
+  arxiv:
+    enabled: true
+    max_results: 50
+    sort_by: "submittedDate"  # Options: "relevance", "lastUpdatedDate", "submittedDate"
+    timeout_seconds: 30
+
+  # OpenAlex API
+  openalex:
+    enabled: true
+    max_results: 100
+    email: "your-email@example.com"
+    timeout_seconds: 30
+
+  # General search settings
+  common:
+    min_year: 2020
+    max_year: 2026
+    language: "en"
+    cache_results: true
+    cache_ttl_hours: 24
+
+# ============================================================
+# DATABASE CONFIGURATION (Phase 3)
+# ============================================================
+database:
+  type: "postgresql"  # Options: "postgresql", "sqlite"
+  host: "localhost"
+  port: 5432
+  database: "autonomous_agent"
+  user: "agent_user"
+  password: "agent_password"
+  ssl: true
+  pool_size: 10
+  max_overflow: 20
+  
+  # Fallback for testing/development
+  fallback:
+    type: "sqlite"
+    path: "./data/cache/agent.db"
+
+# ============================================================
+# VECTOR SEARCH CONFIGURATION (Phase 4)
+# ============================================================
+vector_search:
+  # Embedding model
+  embedding_model: "all-MiniLM-L6-v2"  # Sentence Transformers model
+  embedding_dimension: 384
+  batch_size: 32
+  device: "cpu"  # Options: "cpu", "cuda"
+  cache_embeddings: true
+
+  # Vector store (pgvector)
+  pgvector:
+    enabled: true
+    similarity_metric: "cosine"  # Options: "cosine", "l2", "inner_product"
+    search_top_k: 10
+    min_similarity: 0.3
+
+  # Fallback: in-memory FAISS
+  faiss_fallback:
+    enabled: true
+    index_type: "flat"  # Options: "flat", "ivf", "hnsw"
+    metric: "l2"
+
+# ============================================================
+# RAG CONFIGURATION (Phase 4)
+# ============================================================
+rag:
+  chunk_size: 512
+  chunk_overlap: 128
+  min_chunk_size: 100
+  max_chunks_per_document: 100
+  retrieval_top_k: 10
+  min_relevance_score: 0.3
+  use_reranker: true
+
+# ============================================================
+# EVIDENCE GRAPH CONFIGURATION (Phase 5)
+# ============================================================
+evidence_graph:
+  claim_extraction:
+    min_confidence: 0.5
+    max_claims_per_paper: 20
+    extraction_model: "fine-tuned-on-scientific-claims"
+  
+  contradiction_detection:
+    similarity_threshold: 0.7
+    use_semantic_similarity: true
+    use_keyword_matching: true
+    max_contradictions_per_paper: 10
+
+# ============================================================
+# SANDBOX CONFIGURATION (Phase 6)
+# ============================================================
+sandbox:
+  execution_mode: "docker"  # Options: "docker", "local"
+  docker:
+    image: "autonomous-agent-sandbox:latest"
+    memory_limit: "512m"
+    cpus_limit: 1
+    timeout_seconds: 30
+    network_disabled: true
+  
+  local:
+    timeout_seconds: 30
+    safe_imports_only: true
+    blocked_modules:
+      - "os"
+      - "sys"
+      - "subprocess"
+      - "socket"
+      - "urllib"
+      - "requests"
+
+# ============================================================
+# PDF EXTRACTION CONFIGURATION (Phase 7)
+# ============================================================
+pdf_extraction:
+  use_pdfplumber: true
+  use_ocr_fallback: true
+  ocr_engine: "tesseract"  # Options: "tesseract", "easyocr"
+  extract_images: false
+  image_format: "png"
+  max_pages: 100
+  languages: ["en"]
+
+# ============================================================
+# SECURITY CONFIGURATION (Phase 8)
+# ============================================================
+security:
+  prompt_injection_detection:
+    enabled: true
+    sensitivity: "medium"  # Options: "low", "medium", "high"
+    block_threshold: "CRITICAL"  # Block only CRITICAL; warn on HIGH/MEDIUM
+  
+  input_sanitization:
+    enabled: true
+    max_input_length: 5000
+    remove_html: true
+    normalize_unicode: true
+  
+  audit_logging:
+    enabled: true
+    log_file: "./data/logs/security_audit.log"
+    log_injection_attempts: true
+    log_code_execution: true
+    log_tool_access: true
+
+# ============================================================
+# EVALUATION CONFIGURATION (Phase 9)
+# ============================================================
+evaluation:
+  # Benchmark datasets
+  benchmarks:
+    research_questions_count: 15
+    contradiction_pairs_count: 30
+    adversarial_documents_count: 20
+  
+  # Timeouts and limits
+  timeout_per_test: 300
+  max_parallel_tests: 1  # Set to > 1 for distributed testing in Phase 11+
+  
+  # Metrics collection
+  collect_system_metrics: true
+  collect_timing: true
+  collect_resource_usage: true
+
+# ============================================================
+# DASHBOARD CONFIGURATION (Phase 10)
+# ============================================================
+dashboard:
+  enabled: true
+  host: "0.0.0.0"
+  port: 5000
+  debug: false
+  
+  # Caching
+  cache_ttl_seconds: 300
+  cache_max_size: 1000
+  
+  # Export formats
+  export_formats:
+    - "json"
+    - "html"
+    - "markdown"
+
+# ============================================================
+# LOGGING CONFIGURATION
+# ============================================================
+logging:
+  level: "INFO"  # Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+  format: "json"  # Options: "json", "plaintext"
+  
+  # Log files
+  log_dir: "./data/logs"
+  agent_log_file: "agent.log"
+  database_log_file: "database.log"
+  api_log_file: "api.log"
+  error_log_file: "errors.log"
+  
+  # Log rotation
+  max_log_size_mb: 100
+  backup_count: 5
+
+# ============================================================
+# PERFORMANCE & RESOURCE LIMITS
+# ============================================================
+performance:
+  # Memory
+  max_memory_gb: 32
+  warning_memory_gb: 28
+  
+  # CPU
+  max_cpu_threads: 8
+  
+  # Timeouts
+  default_timeout_seconds: 300
+  max_timeout_seconds: 3600
+  
+  # Caching
+  enable_caching: true
+  cache_dir: "./data/cache"
+  cache_max_size_gb: 10
+
+# ============================================================
+# TESTING CONFIGURATION
+# ============================================================
+testing:
+  # Test execution
+  test_dir: "./tests"
+  skip_gpu_tests: false
+  skip_slow_tests: false
+  skip_live_api_tests: false
+  
+  # Fixtures
+  use_mock_llm: false
+  use_mock_databases: false
+  use_mock_apis: true
+  
+  # Coverage
+  min_coverage_percent: 80
+  generate_coverage_report: true
+
+# ============================================================
+# DEPLOYMENT CONFIGURATION
+# ============================================================
+deployment:
+  environment: "development"  # Options: "development", "staging", "production"
+  
+  # API server
+  api:
+    enabled: true
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+    timeout: 300
+  
+  # Monitoring
+  monitoring:
+    enabled: true
+    export_metrics: true
+    metrics_port: 9090
+  
+  # Docker
+  docker:
+    build_image: true
+    image_name: "autonomous-agent"
+    image_tag: "latest"
+    registry: "docker.io"
