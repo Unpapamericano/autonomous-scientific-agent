@@ -1,12 +1,13 @@
 # Scientific visuals
 
-This folder contains clear, easy-to-understand visuals explaining the project and the recommended research methods.
+This folder contains polished, presentation-ready visuals for the project and the recommended research methods.
 
 ## Files
 
-- `method_ranking.png` — compares the most relevant scientific methods by overall practical value.
-- `workflow_overview.png` — explains the end-to-end research workflow in a simple flowchart.
-- `domain_fit_heatmap.png` — shows which methods fit which research domains best.
+- `method_ranking.png` — comparison of scientific methods by practical value
+- `workflow_overview.png` — visual workflow of the scientific platform
+- `domain_fit_heatmap.png` — method-to-domain fit analysis
+- `scientific_summary_report.pdf` — professional multi-page PDF summary for reviews and portfolio presentation
 
 ## Regenerate
 
