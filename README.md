@@ -44,6 +44,18 @@ cp config/config.yaml.example config/config.yaml
 python scripts/init_db.py
 ```
 
+### Scientific dashboard (R + C++ + Polars)
+
+```bash
+# Generate sample benchmark data with Polars
+python r/generate_demo_data.py
+
+# Launch the professional Shiny dashboard
+Rscript r/shiny_dashboard.R
+```
+
+The dashboard loads `data/math_results.csv` and `data/quantum_results.csv` by default, supports CSV uploads, and visualizes pass/fail outcomes, topic-level error, and cost/quality trade-offs.
+
 ### Run Tests
 
 ```bash

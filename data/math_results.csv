@@ -1,0 +1,11 @@
+study_id,topic,question_id,absolute_error,passed,difficulty,score
+M-001,algebra,algebra_1,0.28,true,medium,96
+M-002,algebra,algebra_2,0.31,true,hard,92
+M-003,geometry,geometry_1,0.44,false,medium,77
+M-004,geometry,geometry_2,0.19,true,easy,98
+M-005,calculus,calculus_1,0.25,true,hard,90
+M-006,calculus,calculus_2,0.68,false,hard,64
+M-007,statistics,statistics_1,0.18,true,easy,99
+M-008,statistics,statistics_2,0.52,false,medium,71
+M-009,probability,probability_1,0.35,true,medium,88
+M-010,probability,probability_2,0.59,false,hard,67
