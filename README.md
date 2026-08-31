@@ -1,5 +1,7 @@
 # Autonomous Scientific Research Agent
 
+![Portfolio banner](visuals/portfolio_banner.png)
+
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-168%20passing-brightgreen.svg)](#testing)
@@ -555,15 +557,6 @@ If you use this project, please cite:
   url = {https://github.com/user/autonomous-scientific-agent}
 }
 ```
-
----
-
-## Support
-
-- 📖 **Documentation**: See `docs/` directory
-- 💬 **Issues**: GitHub Issues
-- 📧 **Email**: support@example.com
-- 🐛 **Bug Reports**: GitHub Issues with `[BUG]` tag
 
 ---
 
