@@ -352,20 +352,94 @@ def create_professional_pdf(output_path: Path) -> None:
         plt.close(heatmap_fig)
 
 
+def create_portfolio_slide_deck(output_path: Path) -> None:
+    with PdfPages(output_path) as pdf:
+        slide1 = plt.figure(figsize=(13.333, 7.5), facecolor="#0B1120")
+        ax = slide1.add_axes([0, 0, 1, 1])
+        ax.axis("off")
+        ax.text(0.06, 0.72, "DATA • AI • SOFTWARE ENGINEER", color="#93C5FD", fontsize=13, fontweight="bold", alpha=0.9)
+        ax.text(0.06, 0.52, "Doncho Panayotov", color="#F8FAFC", fontsize=32, fontweight="bold")
+        ax.text(0.06, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color="#CBD5E1", fontsize=18)
+        ax.text(0.06, 0.25, "Python | Data Analytics | ML | LLMs | Agentic AI | SQL | ETL | APIs | BI | Engineering", color="#E2E8F0", fontsize=14)
+        ax.text(0.06, 0.12, "Portfolio summary • Research-driven • Product-minded • Reproducible systems", color="#94A3B8", fontsize=11)
+        pdf.savefig(slide1, dpi=220)
+        plt.close(slide1)
+
+        slide2 = plt.figure(figsize=(13.333, 7.5), facecolor="#F8FAFC")
+        slide2_ax = slide2.add_subplot(111)
+        slide2_ax.axis("off")
+        slide2_ax.text(0.06, 0.9, "What I bring", fontsize=22, fontweight="bold", color="#111827")
+        bullets = [
+            "End-to-end data and AI workflows from problem definition to production delivery",
+            "Strong business understanding: analytics, customer behavior, reporting, and process optimization",
+            "Technical depth in Python, SQL, ETL, predictive modeling, APIs, and AI integrations",
+            "Portfolio evidence with clear business value, reproducible code, and measurable outcomes",
+            "Ability to communicate across technical and non-technical stakeholders",
+        ]
+        y = 0.72
+        for item in bullets:
+            slide2_ax.text(0.08, y, "• " + item, fontsize=15, color="#1F2937", va="center")
+            y -= 0.12
+        pdf.savefig(slide2, dpi=220)
+        plt.close(slide2)
+
+        slide3 = plt.figure(figsize=(13.333, 7.5), facecolor="#F8FAFC")
+        ax = slide3.add_subplot(111)
+        ax.axis("off")
+        ax.text(0.06, 0.9, "Core capability stack", fontsize=22, fontweight="bold", color="#111827")
+        chips = [
+            "Python", "SQL", "Pandas", "NumPy", "Scikit-learn", "FastAPI", "Django",
+            "Power BI", "Tableau", "ETL", "LLMs", "RAG", "Agentic AI", "GitHub",
+            "Automation", "APIs", "NLP", "MLOps", "Data Engineering", "Business Analysis",
+        ]
+        x, y = 0.06, 0.68
+        for chip in chips:
+            ax.text(x, y, chip, ha="center", va="center", fontsize=11, color="#0F172A", bbox=dict(boxstyle="round,pad=0.5", facecolor="#E0F2FE", edgecolor="#38BDF8"))
+            x += 0.11
+            if x > 0.88:
+                x = 0.06
+                y -= 0.10
+        pdf.savefig(slide3, dpi=220)
+        plt.close(slide3)
+
+        slide4 = plt.figure(figsize=(13.333, 7.5), facecolor="#0B1120")
+        ax = slide4.add_axes([0, 0, 1, 1])
+        ax.axis("off")
+        ax.text(0.06, 0.82, "Portfolio direction", color="#F8FAFC", fontsize=24, fontweight="bold")
+        ax.text(0.06, 0.65, "Problem → Data → Technology → Analysis → Solution → Business value", color="#E2E8F0", fontsize=20)
+        ax.text(0.06, 0.45, "Built to show capability in production-minded analytics, ML, GenAI, and engineering efficiency.", color="#CBD5E1", fontsize=16)
+        ax.text(0.06, 0.22, "Target: data/AI engineer roles with strong business impact and technical delivery focus.", color="#93C5FD", fontsize=15, fontweight="bold")
+        pdf.savefig(slide4, dpi=220)
+        plt.close(slide4)
+
+
 def main() -> None:
     method_df = build_method_frame()
     fig1 = VISUALS_DIR / "method_ranking.png"
     fig2 = VISUALS_DIR / "workflow_overview.png"
     fig3 = VISUALS_DIR / "domain_fit_heatmap.png"
     pdf_path = VISUALS_DIR / "scientific_summary_report.pdf"
+    portfolio_pdf = VISUALS_DIR / "portfolio_slide_deck.pdf"
+    portfolio_banner = VISUALS_DIR / "portfolio_banner.png"
 
     plot_method_ranking(method_df, fig1)
     plot_architecture_flow(fig2)
     plot_domain_fit_heatmap(fig3)
     create_professional_pdf(pdf_path)
+    create_portfolio_slide_deck(portfolio_pdf)
+
+    banner = plt.figure(figsize=(13.333, 7.5), facecolor="#0B1120")
+    ax = banner.add_axes([0, 0, 1, 1])
+    ax.axis("off")
+    ax.text(0.06, 0.72, "DATA • AI • SOFTWARE ENGINEER", color="#93C5FD", fontsize=13, fontweight="bold", alpha=0.9)
+    ax.text(0.06, 0.52, "Doncho Panayotov", color="#F8FAFC", fontsize=32, fontweight="bold")
+    ax.text(0.06, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color="#CBD5E1", fontsize=18)
+    ax.text(0.06, 0.25, "Python | SQL | Analytics | ML | LLMs | Agentic AI | ETL | APIs | BI", color="#E2E8F0", fontsize=14)
+    banner.savefig(portfolio_banner, dpi=220, bbox_inches="tight")
+    plt.close(banner)
 
     print(f"Created visuals in {VISUALS_DIR}")
-    for path in [fig1, fig2, fig3, pdf_path]:
+    for path in [fig1, fig2, fig3, pdf_path, portfolio_pdf, portfolio_banner]:
         print(f" - {path.name}")
 
 
