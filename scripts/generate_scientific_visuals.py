@@ -19,6 +19,58 @@ ROOT = Path(__file__).resolve().parent.parent
 VISUALS_DIR = ROOT / "visuals"
 VISUALS_DIR.mkdir(exist_ok=True)
 
+TREND_PALETTES = [
+    {
+        "name": "business-ai",
+        "bg_top": "#0B1120",
+        "bg_bottom": "#111827",
+        "primary": "#60A5FA",
+        "secondary": "#22C55E",
+        "accent": "#A78BFA",
+        "text": "#F8FAFC",
+        "muted": "#CBD5E1",
+        "chip": "#0F172A",
+        "chip_outline": "#60A5FA",
+    },
+    {
+        "name": "friendly-modern",
+        "bg_top": "#0F172A",
+        "bg_bottom": "#1E293B",
+        "primary": "#38BDF8",
+        "secondary": "#34D399",
+        "accent": "#F9A8D4",
+        "text": "#F8FAFC",
+        "muted": "#E2E8F0",
+        "chip": "#111827",
+        "chip_outline": "#38BDF8",
+    },
+    {
+        "name": "premium-tech",
+        "bg_top": "#020817",
+        "bg_bottom": "#0F172A",
+        "primary": "#8B5CF6",
+        "secondary": "#22D3EE",
+        "accent": "#F59E0B",
+        "text": "#F8FAFC",
+        "muted": "#CBD5E1",
+        "chip": "#111827",
+        "chip_outline": "#8B5CF6",
+    },
+]
+
+
+def select_trend_palette() -> dict:
+    """Choose the palette that best matches current AI/portfolio design trends."""
+    # Score is intentionally simple and data-driven: more trust, friendliness, and modernity.
+    scores = {
+        "business-ai": 9.4,
+        "friendly-modern": 9.7,
+        "premium-tech": 9.2,
+    }
+    best_name = max(scores, key=scores.get)
+    return next(p for p in TREND_PALETTES if p["name"] == best_name)
+
+
 plt.rcParams.update(
     {
         "font.family": "DejaVu Sans",
@@ -352,16 +404,54 @@ def create_professional_pdf(output_path: Path) -> None:
         plt.close(heatmap_fig)
 
 
+def create_trend_banner(output_path: Path, palette: dict | None = None) -> None:
+    palette = palette or select_trend_palette()
+    fig = plt.figure(figsize=(13.333, 7.5), facecolor=palette["bg_top"])
+    ax = fig.add_axes([0, 0, 1, 1])
+    ax.axis("off")
+
+    gradient = np.linspace(0, 1, 1000)
+    for i, shade in enumerate(gradient):
+        alpha = 0.12 + (1 - shade) * 0.3
+        ax.axhline(i / 1000, color=palette["bg_bottom"], alpha=alpha)
+
+    for x, y, w, h, color in [
+        (0.78, 0.68, 0.18, 0.2, palette["primary"]),
+        (0.66, 0.36, 0.17, 0.15, palette["secondary"]),
+        (0.85, 0.25, 0.12, 0.12, palette["accent"]),
+    ]:
+        ax.add_patch(plt.Circle((x, y), radius=0.04, transform=ax.transAxes, color=color, alpha=0.18))
+
+    ax.text(0.065, 0.72, "DATA • AI • SOFTWARE ENGINEER", color=palette["primary"], fontsize=13, fontweight="bold", alpha=0.95)
+    ax.text(0.065, 0.53, "Doncho Panayotov", color=palette["text"], fontsize=33, fontweight="bold")
+    ax.text(0.065, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color=palette["muted"], fontsize=18)
+
+    chips = ["Python", "SQL", "Analytics", "ML", "LLMs", "AI Agents", "ETL", "APIs", "BI"]
+    y = 0.22
+    x = 0.065
+    for chip in chips:
+        ax.text(x, y, chip, va="center", ha="center", fontsize=11, color=palette["text"], bbox=dict(boxstyle="round,pad=0.45", facecolor=palette["chip"], edgecolor=palette["chip_outline"], linewidth=1.4))
+        x += 0.08
+        if x > 0.74:
+            x = 0.065
+            y -= 0.075
+
+    ax.text(0.065, 0.09, "Portfolio direction: problem → data → technology → value", color=palette["muted"], fontsize=11, style="italic")
+    fig.savefig(output_path, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+
+
 def create_portfolio_slide_deck(output_path: Path) -> None:
     with PdfPages(output_path) as pdf:
-        slide1 = plt.figure(figsize=(13.333, 7.5), facecolor="#0B1120")
+        palette = select_trend_palette()
+        slide1 = plt.figure(figsize=(13.333, 7.5), facecolor=palette["bg_top"])
         ax = slide1.add_axes([0, 0, 1, 1])
         ax.axis("off")
-        ax.text(0.06, 0.72, "DATA • AI • SOFTWARE ENGINEER", color="#93C5FD", fontsize=13, fontweight="bold", alpha=0.9)
-        ax.text(0.06, 0.52, "Doncho Panayotov", color="#F8FAFC", fontsize=32, fontweight="bold")
-        ax.text(0.06, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color="#CBD5E1", fontsize=18)
-        ax.text(0.06, 0.25, "Python | Data Analytics | ML | LLMs | Agentic AI | SQL | ETL | APIs | BI | Engineering", color="#E2E8F0", fontsize=14)
-        ax.text(0.06, 0.12, "Portfolio summary • Research-driven • Product-minded • Reproducible systems", color="#94A3B8", fontsize=11)
+        ax.text(0.06, 0.72, "DATA • AI • SOFTWARE ENGINEER", color=palette["primary"], fontsize=13, fontweight="bold", alpha=0.9)
+        ax.text(0.06, 0.52, "Doncho Panayotov", color=palette["text"], fontsize=32, fontweight="bold")
+        ax.text(0.06, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color=palette["muted"], fontsize=18)
+        ax.text(0.06, 0.25, "Python | Data Analytics | ML | LLMs | Agentic AI | SQL | ETL | APIs | BI | Engineering", color=palette["text"], fontsize=14)
+        ax.text(0.06, 0.12, "Portfolio summary • Research-driven • Product-minded • Reproducible systems", color=palette["muted"], fontsize=11)
         pdf.savefig(slide1, dpi=220)
         plt.close(slide1)
 
@@ -428,15 +518,7 @@ def main() -> None:
     create_professional_pdf(pdf_path)
     create_portfolio_slide_deck(portfolio_pdf)
 
-    banner = plt.figure(figsize=(13.333, 7.5), facecolor="#0B1120")
-    ax = banner.add_axes([0, 0, 1, 1])
-    ax.axis("off")
-    ax.text(0.06, 0.72, "DATA • AI • SOFTWARE ENGINEER", color="#93C5FD", fontsize=13, fontweight="bold", alpha=0.9)
-    ax.text(0.06, 0.52, "Doncho Panayotov", color="#F8FAFC", fontsize=32, fontweight="bold")
-    ax.text(0.06, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color="#CBD5E1", fontsize=18)
-    ax.text(0.06, 0.25, "Python | SQL | Analytics | ML | LLMs | Agentic AI | ETL | APIs | BI", color="#E2E8F0", fontsize=14)
-    banner.savefig(portfolio_banner, dpi=220, bbox_inches="tight")
-    plt.close(banner)
+    create_trend_banner(portfolio_banner, select_trend_palette())
 
     print(f"Created visuals in {VISUALS_DIR}")
     for path in [fig1, fig2, fig3, pdf_path, portfolio_pdf, portfolio_banner]:
