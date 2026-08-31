@@ -56,6 +56,18 @@ Rscript r/shiny_dashboard.R
 
 The dashboard loads `data/math_results.csv` and `data/quantum_results.csv` by default, supports CSV uploads, and visualizes pass/fail outcomes, topic-level error, and cost/quality trade-offs.
 
+### Visual explanations
+
+```bash
+# Generate easy-to-understand research visuals
+python scripts/generate_scientific_visuals.py
+```
+
+This creates clear diagrams in `visuals/`:
+- `method_ranking.png` — compares the best research methods
+- `workflow_overview.png` — explains the end-to-end scientific workflow
+- `domain_fit_heatmap.png` — shows which methods fit each domain best
+
 ### Run Tests
 
 ```bash
