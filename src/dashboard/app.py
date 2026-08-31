@@ -9,6 +9,9 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 import json
+import uuid
+
+import polars as pl
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +24,8 @@ class DashboardApp:
     def __init__(self, title: str = "Autonomous Scientific Agent Dashboard"):
         self.title = title
         self.reports = []
+        self.studies = {}
+        self.results = []
         self.system_status = {}
         self.cache = {}
         self.created_at = datetime.utcnow().isoformat()
@@ -48,6 +53,87 @@ class DashboardApp:
                 return report
         return None
 
+    def register_study(
+        self,
+        title: str,
+        description: str = "",
+        study_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Register a study that can receive observations and result records."""
+        if not title.strip():
+            raise ValueError("Study title must not be empty")
+        resolved_id = study_id or str(uuid.uuid4())[:8]
+        if resolved_id in self.studies:
+            raise ValueError(f"Study '{resolved_id}' already exists")
+        study = {
+            "study_id": resolved_id,
+            "title": title,
+            "description": description,
+            "metadata": metadata or {},
+            "created_at": datetime.utcnow().isoformat(),
+            "status": "active",
+        }
+        self.studies[resolved_id] = study
+        return study.copy()
+
+    def get_studies(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """List registered studies, optionally filtered by status."""
+        studies = list(self.studies.values())
+        if status is not None:
+            studies = [study for study in studies if study["status"] == status]
+        return [study.copy() for study in studies]
+
+    def add_result(self, study_id: str, result: Dict[str, Any]) -> Dict[str, Any]:
+        """Add an observation or analysis result to a registered study."""
+        if study_id not in self.studies:
+            raise KeyError(f"Study '{study_id}' not found")
+        if not result:
+            raise ValueError("Result must contain at least one field")
+        record = {
+            "result_id": str(uuid.uuid4())[:8],
+            "study_id": study_id,
+            "recorded_at": datetime.utcnow().isoformat(),
+            **result,
+        }
+        self.results.append(record)
+        return record.copy()
+
+    def get_study_results(self, study_id: str) -> List[Dict[str, Any]]:
+        """Return all observations recorded for a study."""
+        if study_id not in self.studies:
+            raise KeyError(f"Study '{study_id}' not found")
+        return [result.copy() for result in self.results if result["study_id"] == study_id]
+
+    def get_study_summary(self, study_id: str) -> Dict[str, Any]:
+        """Summarize numeric study results using Polars."""
+        if study_id not in self.studies:
+            raise KeyError(f"Study '{study_id}' not found")
+        results = self.get_study_results(study_id)
+        numeric_columns = {}
+        for result in results:
+            for key, value in result.items():
+                if key not in {"result_id", "study_id", "recorded_at"}:
+                    numeric_columns.setdefault(key, []).append(value)
+
+        metrics = {}
+        for column, values in numeric_columns.items():
+            frame = pl.DataFrame({"value": values}).with_columns(
+                pl.col("value").cast(pl.Float64, strict=False)
+            ).drop_nulls()
+            if not frame.is_empty():
+                metrics[column] = {
+                    "average": round(frame["value"].mean(), 12),
+                    "minimum": frame["value"].min(),
+                    "maximum": frame["value"].max(),
+                    "observations": frame.height,
+                }
+        return {
+            "study": self.studies[study_id].copy(),
+            "result_count": len(results),
+            "metrics": metrics,
+        }
+
     def update_system_status(self, status: Dict[str, Any]) -> None:
         """Update system status information."""
         status["updated_at"] = datetime.utcnow().isoformat()
@@ -72,9 +158,13 @@ class DashboardApp:
             "title": self.title,
             "created_at": self.created_at,
             "total_reports": len(self.reports),
+            "total_studies": len(self.studies),
+            "total_results": len(self.results),
             "latest_report": latest_report,
             "system_status": system_status,
             "reports_count": len(self.reports),
+            "studies_count": len(self.studies),
+            "results_count": len(self.results),
         }
 
     def get_metrics_summary(self) -> Dict[str, Any]:
@@ -135,6 +225,8 @@ class DashboardApp:
             "updated_at": datetime.utcnow().isoformat(),
             "total_reports": len(self.reports),
             "reports": self.reports,
+            "studies": list(self.studies.values()),
+            "results": self.results,
             "system_status": self.system_status,
             "summary": self.get_dashboard_summary(),
             "metrics_summary": self.get_metrics_summary(),
@@ -193,6 +285,26 @@ class DashboardRenderer:
             if isinstance(avg, float):
                 avg = f"{avg:.2%}" if 0 <= avg <= 1 else f"{avg:.2f}"
             html += f"<div>- {metric_name}: {avg} (avg of {stats['count']} runs)</div>"
+
+        html += """
+        </div>
+
+        <div class="recent-reports">
+            <h2>Studies and Research Results</h2>
+"""
+
+        if dashboard.studies:
+            for study in dashboard.get_studies():
+                result_count = len(dashboard.get_study_results(study["study_id"]))
+                html += f"""
+            <div class="report-card">
+                <strong>{study['title']}</strong>
+                <p>ID: {study['study_id']} | Status: {study['status']} | Results: {result_count}</p>
+                <p>{study['description']}</p>
+            </div>
+"""
+        else:
+            html += "<p>No studies registered.</p>"
 
         html += """
         </div>

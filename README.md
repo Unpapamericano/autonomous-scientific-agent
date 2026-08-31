@@ -62,6 +62,11 @@ pytest tests/ --cov=src --cov-report=html
 ### Run Agent
 
 ```bash
+# Use the free local Ollama backend (Windows PowerShell)
+$env:MUSE_BACKEND="ollama"
+$env:MUSE_MODEL_ID="qwen3:8b"
+$env:OLLAMA_HOST="http://127.0.0.1:11434"
+
 # Query agent interactively
 python -m src.core.orchestration "What are the latest advances in CRISPR therapeutics?"
 

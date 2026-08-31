@@ -32,6 +32,8 @@ class InferenceConfig:
     """Configuration for Muse Glimmer inference."""
     
     model_id: str = "meta-models/Muse-Glimmer-30B"
+    backend: str = "huggingface"  # "huggingface" or "ollama"
+    ollama_host: str = "http://127.0.0.1:11434"
     quantization: str = "4-bit"  # "4-bit", "8-bit", "bf16"
     max_new_tokens: int = 2048
     temperature: float = 1.0
@@ -46,6 +48,8 @@ class InferenceConfig:
         """Load configuration from environment variables."""
         return cls(
             model_id=os.getenv("MUSE_MODEL_ID", cls.model_id),
+            backend=os.getenv("MUSE_BACKEND", cls.backend).lower(),
+            ollama_host=os.getenv("OLLAMA_HOST", cls.ollama_host).rstrip("/"),
             quantization=os.getenv("MUSE_QUANTIZATION", cls.quantization),
             max_new_tokens=int(os.getenv("MUSE_MAX_TOKENS", cls.max_new_tokens)),
             temperature=float(os.getenv("MUSE_TEMPERATURE", cls.temperature)),
@@ -91,6 +95,18 @@ class MuseGlimmerInference:
     
     def _load_model(self) -> None:
         """Load tokenizer and model from Hugging Face."""
+        if self.config.backend == "ollama":
+            if not self.config.model_id:
+                raise ValueError("MUSE_MODEL_ID is required when using the Ollama backend")
+            logger.info(
+                "Using Ollama backend with model %s at %s",
+                self.config.model_id,
+                self.config.ollama_host,
+            )
+            self.model = self.config.model_id
+            return
+        if self.config.backend != "huggingface":
+            raise ValueError(f"Unsupported inference backend: {self.config.backend}")
         try:
             logger.info(f"Loading tokenizer from {self.config.model_id}...")
             self.tokenizer = AutoTokenizer.from_pretrained(
@@ -168,6 +184,33 @@ class MuseGlimmerInference:
         top_p = top_p or self.config.top_p
         
         try:
+            if self.config.backend == "ollama":
+                import requests
+
+                response = requests.post(
+                    f"{self.config.ollama_host}/api/generate",
+                    json={
+                        "model": self.config.model_id,
+                        "prompt": prompt,
+                        "stream": False,
+                        "think": False,
+                        "options": {
+                            "num_predict": max_new_tokens,
+                            "num_ctx": min(4096, max_new_tokens * 128),
+                            "temperature": temperature,
+                            "top_p": top_p,
+                            "top_k": self.config.top_k,
+                        },
+                    },
+                    timeout=kwargs.pop("timeout", 300),
+                )
+                response.raise_for_status()
+                payload = response.json()
+                generated_text = payload.get("response")
+                if not isinstance(generated_text, str):
+                    raise ValueError("Ollama response did not contain a text response")
+                return generated_text
+
             # Tokenize
             inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
             

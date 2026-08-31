@@ -35,6 +35,19 @@ class TestInferenceConfig:
         del os.environ["MUSE_QUANTIZATION"]
         del os.environ["MUSE_MAX_TOKENS"]
 
+    def test_ollama_config_from_env(self):
+        import os
+
+        os.environ["MUSE_BACKEND"] = "ollama"
+        os.environ["MUSE_MODEL_ID"] = "qwen3.8:latest"
+        config = InferenceConfig.from_env()
+
+        assert config.backend == "ollama"
+        assert config.model_id == "qwen3.8:latest"
+
+        del os.environ["MUSE_BACKEND"]
+        del os.environ["MUSE_MODEL_ID"]
+
 
 class TestMuseGlimmerInference:
     """Test MuseGlimmerInference class."""
@@ -119,6 +132,20 @@ class TestInferenceGeneration:
         # For Phase 1, we focus on structural tests
         assert inference.tokenizer is not None
         assert inference.model is not None
+
+    @patch("requests.post")
+    def test_generate_with_ollama(self, mock_post):
+        response = Mock()
+        response.json.return_value = {"response": "Qwen response"}
+        response.raise_for_status.return_value = None
+        mock_post.return_value = response
+
+        inference = MuseGlimmerInference(
+            InferenceConfig(backend="ollama", model_id="qwen3.8:latest")
+        )
+
+        assert inference.generate("Explain the result", max_new_tokens=32) == "Qwen response"
+        mock_post.assert_called_once()
 
 
 if __name__ == "__main__":

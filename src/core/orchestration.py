@@ -157,7 +157,7 @@ class ResearchAgent:
             max_tool_calls: Max tools per query
             max_retries: Retry attempts on failures
         """
-        self.inference_config = inference_config or InferenceConfig()
+        self.inference_config = inference_config or InferenceConfig.from_env()
         self.tool_registry = tool_registry or get_tool_registry()
         if tool_registry is None and not self.tool_registry._tools:
             from src.core.tools_impl import register_core_tools

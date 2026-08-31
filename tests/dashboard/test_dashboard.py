@@ -91,6 +91,30 @@ class TestDashboardApp:
         assert export["total_reports"] == 1
         assert "summary" in export
 
+    def test_study_results_and_polars_summary(self):
+        dashboard = DashboardApp()
+        study = dashboard.register_study(
+            title="Treatment comparison",
+            study_id="study_1",
+            description="Compare candidate interventions",
+        )
+        dashboard.add_result("study_1", {"solution": "A", "score": 0.8})
+        dashboard.add_result("study_1", {"solution": "B", "score": 0.9})
+
+        assert study["study_id"] == "study_1"
+        assert len(dashboard.get_study_results("study_1")) == 2
+        summary = dashboard.get_study_summary("study_1")
+        assert summary["result_count"] == 2
+        assert summary["metrics"]["score"]["average"] == 0.85
+        assert dashboard.get_dashboard_summary()["studies_count"] == 1
+
+    def test_study_validation(self):
+        dashboard = DashboardApp()
+        with pytest.raises(ValueError, match="title"):
+            dashboard.register_study("")
+        with pytest.raises(KeyError, match="not found"):
+            dashboard.add_result("missing", {"score": 1})
+
 
 class TestDashboardRenderer:
     """Test dashboard rendering."""
