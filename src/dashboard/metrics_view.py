@@ -8,6 +8,8 @@ import logging
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 
+import polars as pl
+
 logger = logging.getLogger(__name__)
 
 
@@ -180,6 +182,112 @@ class MetricsView:
                 }
             ],
         )
+
+    @staticmethod
+    def build_solution_comparison_chart(
+        solutions: List[Dict[str, Any]],
+        solution_column: str = "solution",
+        score_column: str = "score",
+    ) -> ChartData:
+        """Build a bar chart showing mean score for each scientific solution.
+
+        Polars performs the numeric coercion, grouping, and ordering so callers
+        can pass raw values extracted from papers or experiment results.
+        """
+        frame = MetricsView._solution_frame(solutions, solution_column, score_column)
+        summary = (
+            frame.group_by(solution_column)
+            .agg(pl.col(score_column).mean().alias("mean_score"))
+            .sort(["mean_score", solution_column], descending=[True, False])
+        )
+
+        return ChartData(
+            title="Scientific Solution Comparison",
+            chart_type="bar",
+            labels=summary[solution_column].to_list(),
+            datasets=[
+                {
+                    "label": "Mean Score",
+                    "data": [round(value, 6) for value in summary["mean_score"].to_list()],
+                    "backgroundColor": "#007bff",
+                }
+            ],
+            options={"scales": {"y": {"beginAtZero": True}}},
+        )
+
+    @staticmethod
+    def build_solution_tradeoff_chart(
+        solutions: List[Dict[str, Any]],
+        solution_column: str = "solution",
+        cost_column: str = "cost",
+        quality_column: str = "quality",
+    ) -> ChartData:
+        """Build a scatter chart exposing solution cost versus quality."""
+        required = [solution_column, cost_column, quality_column]
+        frame = pl.DataFrame(solutions)
+        missing = [column for column in required if column not in frame.columns]
+        if missing:
+            raise ValueError(f"Missing solution columns: {', '.join(missing)}")
+
+        frame = (
+            frame.with_columns(
+                pl.col(cost_column).cast(pl.Float64, strict=False),
+                pl.col(quality_column).cast(pl.Float64, strict=False),
+            )
+            .drop_nulls(required)
+            .sort(quality_column, descending=True)
+        )
+        if frame.is_empty():
+            raise ValueError("solutions must contain at least one numeric cost and quality value")
+
+        return ChartData(
+            title="Scientific Solution Cost-Quality Tradeoff",
+            chart_type="scatter",
+            labels=frame[solution_column].cast(pl.String).to_list(),
+            datasets=[
+                {
+                    "label": "Solution",
+                    "data": [
+                        {"x": cost, "y": quality}
+                        for cost, quality in zip(
+                            frame[cost_column].to_list(),
+                            frame[quality_column].to_list(),
+                        )
+                    ],
+                    "backgroundColor": "#28a745",
+                }
+            ],
+            options={
+                "scales": {
+                    "x": {"title": {"display": True, "text": "Cost"}},
+                    "y": {"title": {"display": True, "text": "Quality"}},
+                }
+            },
+        )
+
+    @staticmethod
+    def _solution_frame(
+        solutions: List[Dict[str, Any]],
+        solution_column: str,
+        score_column: str,
+    ) -> pl.DataFrame:
+        """Normalize solution records with Polars for chart construction."""
+        frame = pl.DataFrame(solutions)
+        required = [solution_column, score_column]
+        missing = [column for column in required if column not in frame.columns]
+        if missing:
+            raise ValueError(f"Missing solution columns: {', '.join(missing)}")
+
+        frame = (
+            frame.with_columns(
+                pl.col(solution_column).cast(pl.String),
+                pl.col(score_column).cast(pl.Float64, strict=False),
+            )
+            .drop_nulls(required)
+        )
+        if frame.is_empty():
+            raise ValueError("solutions must contain at least one numeric score")
+        return frame
 
     @staticmethod
     def chart_to_json(chart: ChartData) -> Dict[str, Any]:

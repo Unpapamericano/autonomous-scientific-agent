@@ -157,8 +157,12 @@ class ResearchAgent:
             max_tool_calls: Max tools per query
             max_retries: Retry attempts on failures
         """
-        self.inference_config = inference_config or InferenceConfig()
+        self.inference_config = inference_config or InferenceConfig.from_env()
         self.tool_registry = tool_registry or get_tool_registry()
+        if tool_registry is None and not self.tool_registry._tools:
+            from src.core.tools_impl import register_core_tools
+
+            register_core_tools(self.tool_registry)
         self.max_tool_calls = max_tool_calls
         self.max_retries = max_retries
 
@@ -294,14 +298,15 @@ class ResearchAgent:
         """
         tool_calls = []
 
-        # Simple regex for JSON object detection
-        import re
-        json_pattern = r'\{[^{}]*"tool_name"[^{}]*\}'
-        matches = re.findall(json_pattern, response)
-
-        for match in matches:
+        # Decode every JSON object, including objects containing nested parameters.
+        decoder = json.JSONDecoder()
+        for start, character in enumerate(response):
+            if character != "{":
+                continue
             try:
-                obj = json.loads(match)
+                obj, _ = decoder.raw_decode(response[start:])
+                if not isinstance(obj, dict) or "tool_name" not in obj:
+                    continue
                 tool_name = obj.get("tool_name")
                 parameters = obj.get("parameters", {})
 
@@ -314,7 +319,7 @@ class ResearchAgent:
                     logger.warning(f"Unknown tool: {tool_name}")
 
             except json.JSONDecodeError:
-                logger.warning(f"Failed to parse tool JSON: {match}")
+                continue
 
         return tool_calls
 
@@ -323,7 +328,7 @@ class ResearchAgent:
         Execute a single tool call with error handling.
         """
         import time
-        start = time.time()
+        start = time.perf_counter()
 
         try:
             result = await self.tool_registry.execute(
@@ -331,7 +336,7 @@ class ResearchAgent:
                 tool_call.tool_input,
             )
 
-            elapsed_ms = (time.time() - start) * 1000
+            elapsed_ms = max((time.perf_counter() - start) * 1000, 0.001)
 
             logger.info(
                 f"Tool '{tool_call.tool_name}' executed successfully "
@@ -347,7 +352,7 @@ class ResearchAgent:
             )
 
         except Exception as e:
-            elapsed_ms = (time.time() - start) * 1000
+            elapsed_ms = max((time.perf_counter() - start) * 1000, 0.001)
 
             logger.error(
                 f"Tool '{tool_call.tool_name}' failed: {e} "

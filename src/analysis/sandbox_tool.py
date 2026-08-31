@@ -66,7 +66,7 @@ EXECUTE_CODE_TOOL_PHASE6 = ToolDefinition(
         "Execute Python code for data analysis, statistics, or visualization. "
         "Code runs in an isolated Docker sandbox with resource limits (512MB RAM, "
         "no network access, max 10 processes). Safe imports available: math, json, re, "
-        "statistics, numpy, pandas. "
+        "statistics, numpy, pandas, and polars. "
         "Use for numerical analysis, data manipulation, and calculations."
     ),
     input_schema=ExecuteCode,

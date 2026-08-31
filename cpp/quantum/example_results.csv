@@ -1,0 +1,4 @@
+experiment,shots,zeros,ones
+bell_state,1000,503,497
+bell_state,1000,521,479
+noisy_readout,1000,590,410
