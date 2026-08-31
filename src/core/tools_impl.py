@@ -23,12 +23,20 @@ from src.core.tools import (
     ToolStatus,
     SearchQuery,
     SearchResult,
+    SearchResults,
     ExecuteCode,
     CodeExecutionResult,
     ParseTable,
     ExtractedTable,
+    AnalyzeExperiments,
+    ExperimentAnalysisResult,
     VerifyClaim,
     VerificationResult,
+)
+from src.analysis.experiment_analysis import (
+    summarize_experiments,
+    rank_solutions,
+    pareto_frontier,
 )
 
 logger = logging.getLogger(__name__)
@@ -93,7 +101,7 @@ SEARCH_TOOL = ToolDefinition(
         "Use for finding research papers related to a topic."
     ),
     input_schema=SearchQuery,
-    output_schema=SearchResult,
+    output_schema=SearchResults,
     execution_fn=search_literature,
     status=ToolStatus.AVAILABLE,
     tags=["research", "literature", "search"],
@@ -260,11 +268,15 @@ async def parse_table_data(
         
         elif ',' in content:
             # Try CSV
-            import csv
             from io import StringIO
-            reader = csv.DictReader(StringIO(content))
-            columns = reader.fieldnames or []
-            rows = list(reader)
+            import polars as pl
+
+            frame = pl.read_csv(StringIO(content), infer_schema_length=100)
+            columns = frame.columns
+            rows = [
+                {column: "" if value is None else str(value) for column, value in row.items()}
+                for row in frame.to_dicts()
+            ]
         
         else:
             # Plain text table
@@ -310,6 +322,49 @@ PARSE_TABLE_TOOL = ToolDefinition(
     execution_fn=parse_table_data,
     status=ToolStatus.AVAILABLE,
     tags=["parsing", "data-extraction"],
+)
+
+
+# ============================================================================
+# EXPERIMENT ANALYSIS TOOL
+# ============================================================================
+
+async def analyze_experiments(
+    records: List[Dict[str, Any]],
+    analysis: str = "summary",
+    solution_column: str = "solution",
+    score_column: str = "score",
+    quality_column: str = "quality",
+    cost_column: str = "cost",
+) -> Dict[str, Any]:
+    """Analyze scientific experiment results with Polars."""
+    analyses = {
+        "summary": lambda: summarize_experiments(records, solution_column, score_column),
+        "rank": lambda: rank_solutions(
+            records, solution_column, quality_column, cost_column
+        ),
+        "pareto": lambda: pareto_frontier(
+            records, solution_column, quality_column, cost_column
+        ),
+    }
+    if analysis not in analyses:
+        raise ValueError("analysis must be one of: summary, rank, pareto")
+    return {"analysis": analysis, "rows": analyses[analysis]()}
+
+
+ANALYZE_EXPERIMENTS_TOOL = ToolDefinition(
+    name="analyze_experiments",
+    type=ToolType.ANALYZE,
+    description=(
+        "Analyze scientific experiment results with Polars. "
+        "Summarize repeated measurements, rank quality per cost, or find "
+        "the cost-quality Pareto frontier."
+    ),
+    input_schema=AnalyzeExperiments,
+    output_schema=ExperimentAnalysisResult,
+    execution_fn=analyze_experiments,
+    status=ToolStatus.AVAILABLE,
+    tags=["analysis", "polars", "experiments", "optimization"],
 )
 
 
@@ -408,6 +463,7 @@ CORE_TOOLS = [
     SEARCH_TOOL,
     EXECUTE_CODE_TOOL,
     PARSE_TABLE_TOOL,
+    ANALYZE_EXPERIMENTS_TOOL,
     VERIFY_CLAIM_TOOL,
 ]
 

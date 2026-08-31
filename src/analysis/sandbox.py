@@ -19,6 +19,7 @@ so tests and dev environments without Docker installed can still run.
 import logging
 import asyncio
 import time
+import types
 from dataclasses import dataclass
 from typing import Optional, Tuple
 from enum import Enum
@@ -32,6 +33,7 @@ try:
 except ImportError:
     DOCKER_AVAILABLE = False
     DockerException = Exception
+    docker = types.SimpleNamespace(from_env=None)
 
 
 class SandboxMode(str, Enum):
@@ -275,6 +277,12 @@ class DockerSandbox:
         try:
             import pandas
             safe_modules["pandas"] = pandas
+        except ImportError:
+            pass
+
+        try:
+            import polars
+            safe_modules["polars"] = polars
         except ImportError:
             pass
 

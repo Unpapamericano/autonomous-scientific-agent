@@ -104,6 +104,11 @@ class SearchResult(BaseModel):
     doi: Optional[str] = None
 
 
+class SearchResults(BaseModel):
+    """Output schema for a collection of search results."""
+    results: List[SearchResult]
+
+
 class ExecuteCode(BaseModel):
     """Input schema for code execution tool."""
     code: str = Field(
@@ -156,6 +161,30 @@ class ExtractedTable(BaseModel):
     columns: List[str]
     summary: str
     structured_data: Dict[str, Any]  # Interpreted data
+
+
+class AnalyzeExperiments(BaseModel):
+    """Input schema for Polars-backed scientific experiment analysis."""
+    records: List[Dict[str, Any]] = Field(
+        ...,
+        description="Experiment records with solution, quality/score, and optional cost values",
+        min_items=1,
+        max_items=10000,
+    )
+    analysis: str = Field(
+        default="summary",
+        description="Analysis to run: 'summary', 'rank', or 'pareto'",
+    )
+    solution_column: str = Field(default="solution", min_length=1)
+    score_column: str = Field(default="score", min_length=1)
+    quality_column: str = Field(default="quality", min_length=1)
+    cost_column: str = Field(default="cost", min_length=1)
+
+
+class ExperimentAnalysisResult(BaseModel):
+    """Output schema for Polars-backed experiment analysis."""
+    analysis: str
+    rows: List[Dict[str, Any]]
 
 
 class VerifyClaim(BaseModel):
@@ -324,13 +353,10 @@ class ToolDefinition:
         """Convert tool definition to JSON schema for LLM calling."""
         input_schema = self.input_schema.schema()
         return {
-            "type": "object",
-            "properties": {
-                "name": {"type": "string", "const": self.name},
-                "description": {"type": "string", "const": self.description},
-                "parameters": input_schema,
-            },
-            "required": ["name", "parameters"],
+            "name": self.name,
+            "description": self.description,
+            "properties": input_schema.get("properties", {}),
+            "required": input_schema.get("required", []),
         }
 
     def to_openai_format(self) -> Dict[str, Any]:
@@ -368,6 +394,8 @@ class ToolDefinition:
             if isinstance(result, self.output_schema):
                 output_obj = result
             else:
+                if isinstance(result, list) and "results" in self.output_schema.__fields__:
+                    result = {"results": result}
                 output_obj = self.output_schema(**result)
 
             logger.info(f"Tool '{self.name}' completed successfully")

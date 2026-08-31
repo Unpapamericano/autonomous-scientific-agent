@@ -11,6 +11,7 @@ accelerate>=0.20.0  # For distributed inference
 pydantic>=2.0.0
 pyyaml>=6.0
 pandas>=2.0.0
+polars>=1.0.0
 numpy>=1.24.0
 
 # Database
