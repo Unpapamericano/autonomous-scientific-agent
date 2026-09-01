@@ -19,6 +19,8 @@ A **local, open-source multimodal LLM-based autonomous agent** for scientific li
 
 **Status**: ✅ **10 phases complete, 168 tests passing, 9,429 lines of code**
 
+> Important: this repository contains active research, portfolio, and synthesis work. Some sections, including the multiple sclerosis analysis and associated solution-path visuals, are intentionally exploratory and should be read as information, hypotheses, and communication artifacts—not final medical guidance or definitive treatment recommendations.
+
 ## Release Highlights
 
 This repository now combines a professional scientific research platform, a portfolio-ready data/AI storytelling layer, and domain-specific evidence synthesis for real-world topics such as multiple sclerosis.

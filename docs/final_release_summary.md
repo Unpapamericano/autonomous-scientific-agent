@@ -4,6 +4,8 @@
 
 This repository presents a local-first scientific research platform and portfolio artifact for AI, data, and scientific software work. It is designed to show how a modern research workflow can combine:
 
+This project is intentionally a work in progress. The evidence summaries, solution matrices, and visual hypotheses are intended for research exploration, portfolio storytelling, and technical communication. They are not final scientific verdicts, final clinical procedures, or medical recommendations.
+
 - Python-based scientific analysis
 - Polars for efficient data processing
 - Local open-source LLM usage via Ollama
@@ -14,6 +16,14 @@ This repository presents a local-first scientific research platform and portfoli
 The project is intentionally built to be practical, transparent, and reproducible rather than dependent on opaque cloud-only tooling.
 
 ## What is included
+
+### Work-in-progress framing
+
+- early-stage research synthesis
+- exploratory scenario modeling
+- portfolio-appropriate scientific storytelling
+- evidence-based but non-definitive interpretation
+- no claim of final treatment or cure recommendation
 
 ### Scientific research platform
 
