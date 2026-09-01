@@ -88,10 +88,12 @@ pytest tests/ --cov=src --cov-report=html
 ### Run Agent
 
 ```bash
-# Use the free local Ollama backend (Windows PowerShell)
+# Use the most efficient local model for this environment (Windows PowerShell)
 $env:MUSE_BACKEND="ollama"
 $env:MUSE_MODEL_ID="qwen3:8b"
 $env:OLLAMA_HOST="http://127.0.0.1:11434"
+
+# qwen3:8b is the preferred default: strong quality, low memory cost, and reliable local execution.
 
 # Query agent interactively
 python -m src.core.orchestration "What are the latest advances in CRISPR therapeutics?"
@@ -102,6 +104,26 @@ python scripts/run_agent.py --query "Research question here"
 # Start dashboard
 python scripts/run_dashboard.py --port 5000
 ```
+
+### Freephdlabor-inspired multi-agent workflow
+
+This project now includes a lightweight multi-agent research loop inspired by the freephdlabor methodology:
+
+- IdeationAgent transforms a research question into a structured plan
+- ExperimentationAgent executes reproducible analysis using Python/Polars
+- WriteupAgent turns results into a professional paper-style summary
+- ReviewerAgent checks the draft for rigor and next-step recommendations
+- ResearchWorkflowRunner stores artifacts in a results workspace
+
+```bash
+python scripts/launch_multiagent.py --task "Study how a small scientific benchmark can be improved with active learning and explainable evaluation."
+```
+
+The workflow saves:
+- `results/multiagent_run/research_report.md`
+- `results/multiagent_run/workflow_summary.json`
+
+This gives the project a more production-oriented research loop while keeping it local, reproducible, and domain-agnostic.
 
 ---
 

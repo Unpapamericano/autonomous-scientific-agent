@@ -1,0 +1,132 @@
+{
+  "project_name": "Generalist Data Annotator Simulation",
+  "profile": {
+    "name": "AI Annotator",
+    "english_level": "advanced",
+    "german_level": "advanced",
+    "attention_to_detail": 0.93,
+    "reliability": 0.94,
+    "typing_speed": 85.0
+  },
+  "requirements_match": {
+    "remote_flexible_work": true,
+    "global_datasets": true,
+    "multilingual": true,
+    "data_types": [
+      "audio",
+      "image",
+      "text",
+      "video"
+    ],
+    "quality_control": true,
+    "security_protocols": true,
+    "contract_work": true
+  },
+  "calibration": {
+    "calibration_score": 0.9933,
+    "pass_threshold": 0.85,
+    "passed": true
+  },
+  "metrics": {
+    "total_tasks": 9,
+    "accuracy": 1.0,
+    "average_quality_score": 0.9959,
+    "text_accuracy": 1.0,
+    "image_accuracy": 1.0,
+    "audio_accuracy": 1.0,
+    "video_accuracy": 1.0,
+    "estimated_earnings_usd": 18.06
+  },
+  "tasks": [
+    {
+      "task_id": "TXT-01",
+      "task_type": "text",
+      "submitted_label": "customer_complaint",
+      "expected_label": "customer_complaint",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 0.99,
+      "time_seconds": 18
+    },
+    {
+      "task_id": "TXT-02",
+      "task_type": "text",
+      "submitted_label": "positive_feedback",
+      "expected_label": "positive_feedback",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 0.99,
+      "time_seconds": 18
+    },
+    {
+      "task_id": "TXT-03",
+      "task_type": "text",
+      "submitted_label": "pricing_request",
+      "expected_label": "pricing_request",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 18
+    },
+    {
+      "task_id": "IMG-01",
+      "task_type": "image",
+      "submitted_label": "product_visible",
+      "expected_label": "product_visible",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 0.9833,
+      "time_seconds": 30
+    },
+    {
+      "task_id": "IMG-02",
+      "task_type": "image",
+      "submitted_label": "form_error",
+      "expected_label": "form_error",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 30
+    },
+    {
+      "task_id": "AUD-01",
+      "task_type": "audio",
+      "submitted_label": "subscription_cancel_request",
+      "expected_label": "subscription_cancel_request",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 52
+    },
+    {
+      "task_id": "AUD-02",
+      "task_type": "audio",
+      "submitted_label": "damaged_delivery_report",
+      "expected_label": "damaged_delivery_report",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 65.0
+    },
+    {
+      "task_id": "VID-01",
+      "task_type": "video",
+      "submitted_label": "payment_failure",
+      "expected_label": "payment_failure",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 93.75
+    },
+    {
+      "task_id": "VID-02",
+      "task_type": "video",
+      "submitted_label": "barcode_scan",
+      "expected_label": "barcode_scan",
+      "is_correct": true,
+      "confidence": 0.98,
+      "quality_score": 1.0,
+      "time_seconds": 75
+    }
+  ]
+}
