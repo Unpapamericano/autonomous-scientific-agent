@@ -1,0 +1,77 @@
+{
+  "project": "Multiple Sclerosis evidence summary",
+  "educational_note": "This is a qualitative evidence summary, not medical advice.",
+  "cause_model": {
+    "genetic_risk": "High",
+    "environmental_triggers": [
+      "EBV",
+      "low vitamin D",
+      "smoking",
+      "obesity"
+    ],
+    "core_mechanism": "Autoimmune inflammation and demyelination of the central nervous system"
+  },
+  "risk_factors": [
+    {
+      "name": "Genetic susceptibility",
+      "score": 8.8,
+      "note": "HLA risk and family history"
+    },
+    {
+      "name": "Immune dysregulation",
+      "score": 9.6,
+      "note": "Autoreactive T/B-cell activity"
+    },
+    {
+      "name": "EBV exposure",
+      "score": 9.2,
+      "note": "Strongest environmental signal"
+    },
+    {
+      "name": "Smoking",
+      "score": 8.7,
+      "note": "Higher risk and disease activity"
+    },
+    {
+      "name": "Vitamin D / UV",
+      "score": 8.5,
+      "note": "Lower exposure linked to higher risk"
+    },
+    {
+      "name": "Obesity / BMI",
+      "score": 7.4,
+      "note": "Metabolic risk contribution"
+    },
+    {
+      "name": "Gut microbiome",
+      "score": 6.8,
+      "note": "Emerging but not definitive"
+    }
+  ],
+  "therapies": [
+    {
+      "name": "Standard DMTs",
+      "evidence_maturity": 9.1,
+      "potential_benefit": 8.5,
+      "summary": "Established; reduces relapses"
+    },
+    {
+      "name": "HSCT",
+      "evidence_maturity": 6.2,
+      "potential_benefit": 8.3,
+      "summary": "Selected severe cases; remission potential"
+    },
+    {
+      "name": "CAR T-cell",
+      "evidence_maturity": 3.1,
+      "potential_benefit": 8.7,
+      "summary": "Experimental; immune reset approach"
+    },
+    {
+      "name": "MSC therapy",
+      "evidence_maturity": 4.1,
+      "potential_benefit": 5.5,
+      "summary": "Investigational; mixed evidence"
+    }
+  ]
+}
