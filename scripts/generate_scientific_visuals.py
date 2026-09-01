@@ -410,33 +410,43 @@ def create_trend_banner(output_path: Path, palette: dict | None = None) -> None:
     ax = fig.add_axes([0, 0, 1, 1])
     ax.axis("off")
 
-    gradient = np.linspace(0, 1, 1000)
+    gradient = np.linspace(0, 1, 1200)
     for i, shade in enumerate(gradient):
-        alpha = 0.12 + (1 - shade) * 0.3
-        ax.axhline(i / 1000, color=palette["bg_bottom"], alpha=alpha)
+        alpha = 0.08 + (1 - shade) * 0.18
+        ax.axhline(i / 1200, color=palette["bg_bottom"], alpha=alpha)
 
-    for x, y, w, h, color in [
-        (0.78, 0.68, 0.18, 0.2, palette["primary"]),
-        (0.66, 0.36, 0.17, 0.15, palette["secondary"]),
-        (0.85, 0.25, 0.12, 0.12, palette["accent"]),
-    ]:
-        ax.add_patch(plt.Circle((x, y), radius=0.04, transform=ax.transAxes, color=color, alpha=0.18))
+    ax.add_patch(plt.Rectangle((0.0, 0.0), 1.0, 1.0, facecolor="none", edgecolor=palette["primary"], linewidth=1.2, alpha=0.25))
 
-    ax.text(0.065, 0.72, "DATA • AI • SOFTWARE ENGINEER", color=palette["primary"], fontsize=13, fontweight="bold", alpha=0.95)
-    ax.text(0.065, 0.53, "Doncho Panayotov", color=palette["text"], fontsize=33, fontweight="bold")
-    ax.text(0.065, 0.40, "Business-first technologist building data products, AI systems, and scalable automation.", color=palette["muted"], fontsize=18)
+    glow = plt.Circle((0.82, 0.64), 0.19, transform=ax.transAxes, color=palette["primary"], alpha=0.10)
+    ax.add_patch(glow)
+    ax.add_patch(plt.Circle((0.7, 0.35), 0.12, transform=ax.transAxes, color=palette["secondary"], alpha=0.12))
+    ax.add_patch(plt.Circle((0.89, 0.24), 0.10, transform=ax.transAxes, color=palette["accent"], alpha=0.14))
+
+    ax.text(0.065, 0.78, "DATA • AI • SOFTWARE ENGINEER", color=palette["primary"], fontsize=12, fontweight="bold", alpha=0.96)
+    ax.text(0.065, 0.57, "Doncho Panayotov", color=palette["text"], fontsize=33, fontweight="bold")
+    ax.text(0.065, 0.42, "Business-first technologist building data products, AI systems, and scalable automation.", color=palette["muted"], fontsize=18)
+
+    ax.text(0.065, 0.20, "Problem → Data → Technology → Insight → Business Value", color=palette["text"], fontsize=13, fontweight="semibold")
 
     chips = ["Python", "SQL", "Analytics", "ML", "LLMs", "AI Agents", "ETL", "APIs", "BI"]
-    y = 0.22
+    y = 0.085
     x = 0.065
     for chip in chips:
-        ax.text(x, y, chip, va="center", ha="center", fontsize=11, color=palette["text"], bbox=dict(boxstyle="round,pad=0.45", facecolor=palette["chip"], edgecolor=palette["chip_outline"], linewidth=1.4))
+        ax.text(
+            x,
+            y,
+            chip,
+            va="center",
+            ha="center",
+            fontsize=10.5,
+            color=palette["text"],
+            bbox=dict(boxstyle="round,pad=0.42", facecolor=palette["chip"], edgecolor=palette["chip_outline"], linewidth=1.3),
+        )
         x += 0.08
         if x > 0.74:
             x = 0.065
-            y -= 0.075
+            y -= 0.055
 
-    ax.text(0.065, 0.09, "Portfolio direction: problem → data → technology → value", color=palette["muted"], fontsize=11, style="italic")
     fig.savefig(output_path, dpi=220, bbox_inches="tight")
     plt.close(fig)
 

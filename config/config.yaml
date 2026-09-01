@@ -16,7 +16,7 @@ project:
 # LLM CONFIGURATION (Phase 1)
 # ============================================================
 llm:
-  model: "meta-llama/Llama-2-70b-chat-hf"  # Can also be "mistralai/Mistral-7B", etc.
+  model: "qwen3:8b"  # Preferred efficient local model for this environment
   quantization: "4-bit"  # Options: "2-bit", "4-bit", "8-bit", "bf16"
   device_map: "auto"  # Options: "auto", "cuda:0", "cpu"
   max_new_tokens: 2048

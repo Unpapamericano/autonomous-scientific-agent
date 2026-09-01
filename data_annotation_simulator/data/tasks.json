@@ -1,0 +1,94 @@
+{
+  "tasks": [
+    {
+      "task_id": "TXT-01",
+      "task_type": "text",
+      "content": "The customer wrote: 'Sehr unzufrieden mit der Lieferung und möchte sofort eine Rückerstattung'.",
+      "expected_label": "customer_complaint",
+      "difficulty": "easy",
+      "language": "de",
+      "instructions": "Classify the sentiment and intent of the customer message.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "TXT-02",
+      "task_type": "text",
+      "content": "Product review: 'The app is stable and the onboarding is smooth. I would recommend it.'",
+      "expected_label": "positive_feedback",
+      "difficulty": "easy",
+      "language": "en",
+      "instructions": "Tag the review as positive, neutral, or negative.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "TXT-03",
+      "task_type": "text",
+      "content": "Client note: 'We need a price comparison for all vendors in Germany and Austria.'",
+      "expected_label": "pricing_request",
+      "difficulty": "medium",
+      "language": "en",
+      "instructions": "Identify the business intent in the message.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "IMG-01",
+      "task_type": "image",
+      "content": "Image of a retail shelf with a product package and a visible label on the box.",
+      "expected_label": "product_visible",
+      "difficulty": "easy",
+      "language": "en",
+      "instructions": "Determine whether the product packaging is visible in the image.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "IMG-02",
+      "task_type": "image",
+      "content": "Screenshot showing a UI form with empty fields and a warning banner.",
+      "expected_label": "form_error",
+      "difficulty": "medium",
+      "language": "en",
+      "instructions": "Identify the primary issue in the image.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "AUD-01",
+      "task_type": "audio",
+      "content": "Customer support audio clip: 'I need to cancel my subscription and speak to someone about the invoice.'",
+      "expected_label": "subscription_cancel_request",
+      "difficulty": "medium",
+      "language": "en",
+      "instructions": "Transcribe and classify the support request.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "AUD-02",
+      "task_type": "audio",
+      "content": "German customer voicemail: 'Ich habe eine Lieferung erhalten, aber der Artikel ist beschädigt.'",
+      "expected_label": "damaged_delivery_report",
+      "difficulty": "hard",
+      "language": "de",
+      "instructions": "Transcribe the German message and identify the issue.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "VID-01",
+      "task_type": "video",
+      "content": "Short clip of a checkout counter where a customer inserts a card and the payment fails.",
+      "expected_label": "payment_failure",
+      "difficulty": "hard",
+      "language": "en",
+      "instructions": "Label the main event in the video sequence.",
+      "security_level": "standard"
+    },
+    {
+      "task_id": "VID-02",
+      "task_type": "video",
+      "content": "Video of warehouse workers sorting parcels and scanning a barcode at a packing station.",
+      "expected_label": "barcode_scan",
+      "difficulty": "medium",
+      "language": "en",
+      "instructions": "Identify the operational action visible in the video.",
+      "security_level": "standard"
+    }
+  ]
+}
