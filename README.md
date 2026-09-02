@@ -2,625 +2,186 @@
 
 ![Portfolio banner](visuals/portfolio_banner.png)
 
-[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/tests-168%20passing-brightgreen.svg)](#testing)
-[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Docker CI](https://github.com/Unpapamericano/autonomous-scientific-agent/actions/workflows/docker-image.yml/badge.svg)](https://github.com/Unpapamericano/autonomous-scientific-agent/actions/workflows/docker-image.yml)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A **local, open-source multimodal LLM-based autonomous agent** for scientific literature research. Designed to:
+> **Work in progress:** this project is an experimental, local-first research
+> platform. Its analyses and visualizations are information and hypotheses,
+> not final scientific conclusions, medical advice, or treatment recommendations.
 
-- 🔬 **Search & retrieve** papers from PubMed, arXiv, OpenAlex
-- 📄 **Extract & understand** multimodal content (text, tables, figures) from PDFs
-- 🔗 **Build evidence graphs** with contradiction detection
-- 🧮 **Execute safe code** in isolated Docker sandbox
-- 🛡️ **Detect & block** prompt injection attacks
-- 📊 **Evaluate & benchmark** against research questions (RQ1–RQ7)
-- 📈 **Visualize results** via interactive dashboard
+## What this project does
 
-**Status**: ✅ **10 phases complete, 168 tests passing, 9,429 lines of code**
+The Autonomous Scientific Research Agent helps turn a research question into a
+traceable workflow:
 
-> Important: this repository contains active research, portfolio, and synthesis work. Some sections, including the multiple sclerosis analysis and associated solution-path visuals, are intentionally exploratory and should be read as information, hypotheses, and communication artifacts—not final medical guidance or definitive treatment recommendations.
+```text
+Question → Search → Extract → Analyze → Verify → Explain
+```
 
-## Release Highlights
+It combines local AI, scientific literature search, reproducible data analysis,
+evidence tracking, safe tool execution, and professional visual reporting.
 
-This repository now combines a professional scientific research platform, a portfolio-ready data/AI storytelling layer, and domain-specific evidence synthesis for real-world topics such as multiple sclerosis.
+## Why it is useful
 
-Highlights include:
+- **Local-first:** run supported workflows with Ollama and open-source models.
+- **Evidence-aware:** connect claims to recognized sources and label uncertainty.
+- **Reproducible:** use Python, Polars, tests, Docker, and structured artifacts.
+- **Adaptive:** inspect the most relevant evidence instead of processing everything equally.
+- **Production-minded:** use quality gates, telemetry, security checks, and CI.
+- **Understandable:** generate reports, dashboards, diagrams, and PDFs for technical
+  and non-technical audiences.
 
-- Local-first scientific workflows using Python, Polars, R, and C++
-- Multi-agent research loop inspired by freephdlabor methodology
-- Open-source, reproducible visual generation for reports and presentations
-- Professional portfolio branding and presentation assets
-- Evidence-based MS summary covering causes, therapies, and cure status
-- Ready-to-use scripts for dashboards, visual reports, and scientific summaries
+## Core capabilities
 
-For a concise project overview, see `docs/final_release_summary.md`.
+| Capability | What it provides |
+|---|---|
+| Literature search | PubMed, arXiv, and OpenAlex integrations |
+| Evidence synthesis | Claims, source links, contradiction-aware review |
+| Adaptive analysis | Fast, balanced, and deep evidence inspection modes |
+| AI workflows | Ideation, experimentation, write-up, and review agents |
+| Data analysis | Polars-based scientific summaries and visualizations |
+| Safe execution | Sandboxed Python tooling and security checks |
+| Delivery governance | Discover → Design → Build → Validate → Release → Operate → Evolve |
+| Reporting | Dashboards, images, Markdown summaries, and PDFs |
 
-The adaptive-analysis design is documented in `docs/adaptive_analysis_roadmap.md`.
-It is a work in progress: evidence-ranked inspection and telemetry are implemented,
-while provider adapters and corpus benchmarks remain planned.
+## Quick start
 
-The closed-loop engineering pattern is documented in `docs/loop_engineering.md`.
-It connects planning, implementation, measurement, review, and iteration so
-research artifacts improve through observable cycles rather than one-shot output.
-
-The enterprise-inspired software and AI delivery lifecycle is documented in
-`docs/enterprise_ai_delivery_workflow.md`. It adds gated discovery, architecture,
-validation, release, operations, and evolution without claiming any proprietary
-company process.
-
-Recognized-source governance is implemented in `src/research/source_governance.py`
-with an MS registry in `data/ms_source_registry.json`. Claims must be localized
-to sources and labeled by evidence type before release.
-
----
-
-## Quick Start
-
-### Installation
+### 1. Install
 
 ```bash
-# Clone repository
-git clone https://github.com/user/autonomous-scientific-agent.git
-cd autonomous-scientific-agent
+python -m venv .venv
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+# macOS/Linux
+# source .venv/bin/activate
 
-# Create virtual environment
-python3.11 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements.txt
-pip install -r requirements-dev.txt  # For development
-
-# Setup configuration
-cp config/config.yaml.example config/config.yaml
-# Edit config/config.yaml with your settings
-
-# Initialize database
-python scripts/init_db.py
+pip install -r requirements-dev.txt
 ```
 
-### Scientific dashboard (R + C++ + Polars)
+### 2. Run a local research workflow
 
-```bash
-# Generate sample benchmark data with Polars
-python r/generate_demo_data.py
+Start Ollama separately, then configure the local model:
 
-# Launch the professional Shiny dashboard
-Rscript r/shiny_dashboard.R
-```
-
-The dashboard loads `data/math_results.csv` and `data/quantum_results.csv` by default, supports CSV uploads, and visualizes pass/fail outcomes, topic-level error, and cost/quality trade-offs.
-
-### Visual explanations
-
-```bash
-# Generate easy-to-understand research visuals
-python scripts/generate_scientific_visuals.py
-```
-
-This creates clear diagrams in `visuals/`:
-- `method_ranking.png` — compares the best research methods
-- `workflow_overview.png` — explains the end-to-end scientific workflow
-- `domain_fit_heatmap.png` — shows which methods fit each domain best
-
-### Run Tests
-
-```bash
-# All tests
-pytest tests/ -v
-
-# By phase
-pytest tests/evaluation/ -v  # Phase 9
-pytest tests/dashboard/ -v   # Phase 10
-pytest tests/security/ -v    # Phase 8
-
-# With coverage
-pytest tests/ --cov=src --cov-report=html
-```
-
-### Run Agent
-
-```bash
-# Use the most efficient local model for this environment (Windows PowerShell)
+```powershell
 $env:MUSE_BACKEND="ollama"
 $env:MUSE_MODEL_ID="qwen3:8b"
 $env:OLLAMA_HOST="http://127.0.0.1:11434"
-
-# qwen3:8b is the preferred default: strong quality, low memory cost, and reliable local execution.
-
-# Query agent interactively
-python -m src.core.orchestration "What are the latest advances in CRISPR therapeutics?"
-
-# Run via CLI
-python scripts/run_agent.py --query "Research question here"
-
-# Start dashboard
-python scripts/run_dashboard.py --port 5000
+python scripts/launch_multiagent.py --task "Compare evidence for two scientific methods."
 ```
 
-### Freephdlabor-inspired multi-agent workflow
+The workflow writes a report and structured summary under the configured results
+workspace.
 
-This project now includes a lightweight multi-agent research loop inspired by the freephdlabor methodology:
-
-- IdeationAgent transforms a research question into a structured plan
-- ExperimentationAgent executes reproducible analysis using Python/Polars
-- WriteupAgent turns results into a professional paper-style summary
-- ReviewerAgent checks the draft for rigor and next-step recommendations
-- ResearchWorkflowRunner stores artifacts in a results workspace
+### 3. Generate visuals
 
 ```bash
-python scripts/launch_multiagent.py --task "Study how a small scientific benchmark can be improved with active learning and explainable evaluation."
+python scripts/generate_scientific_visuals.py
+python scripts/generate_ms_evidence_visuals.py
+python scripts/generate_loop_engineering_visual.py
+python scripts/generate_enterprise_workflow_visual.py
 ```
 
-The workflow saves:
-- `results/multiagent_run/research_report.md`
-- `results/multiagent_run/workflow_summary.json`
-
-This gives the project a more production-oriented research loop while keeping it local, reproducible, and domain-agnostic.
-
----
-
-## System Architecture
-
-### 10 Phases (9,429 LOC)
-
-```
-┌─────────────────────────────────────────────┐
-│  Phase 10: Dashboard & UI (1,716 LOC)       │
-│  - Metrics visualization                    │
-│  - System monitoring                        │
-│  - Report management                        │
-└─────────────────────────────────────────────┘
-                    ↓
-┌─────────────────────────────────────────────┐
-│  Phase 9: Evaluation Framework (1,039 LOC)  │
-│  - RQ1–RQ7 metrics                          │
-│  - Benchmark datasets                       │
-│  - Report generation                        │
-└─────────────────────────────────────────────┘
-                    ↓
-        ┌───────────┴──────────────┐
-        │                          │
-┌───────▼─────┐  ┌────────────────▼──┐
-│ Phase 1-8   │  │  Phase 11 (Next)   │
-│  9,429 LOC  │  │ Benchmarking       │
-│             │  │ Experiments        │
-│ ✅ LLM      │  │ Final Report       │
-│ ✅ Tools    │  │                    │
-│ ✅ Search   │  │                    │
-│ ✅ RAG      │  │                    │
-│ ✅ Evidence │  │                    │
-│ ✅ Sandbox  │  │                    │
-│ ✅ PDF      │  │                    │
-│ ✅ Security │  │                    │
-└─────────────┘  └────────────────────┘
-```
-
-### Component Breakdown
-
-| Phase | Component | LOC | Tests | Purpose |
-|-------|-----------|-----|-------|---------|
-| **1** | LLM Inference | 1,200 | 25+ | Load & run Muse Glimmer locally |
-| **2** | Orchestration | 1,200 | 25+ | Multi-tool agent with state |
-| **3** | Literature APIs | 1,200 | 28 | PubMed, arXiv, OpenAlex search |
-| **4** | RAG Pipeline | 1,200 | 16 | Vector search & retrieval |
-| **5** | Evidence Graph | 1,300 | 32 | Claims, contradictions, support |
-| **6** | Python Sandbox | 950 | 18 | Docker isolation + local fallback |
-| **7** | PDF Extraction | 871 | 17 | Text, tables, figures + OCR |
-| **8** | Security | 753 | 25 | Injection detection + sanitization |
-| **9** | Evaluation | 1,039 | 20 | Metrics, benchmarks, reports |
-| **10** | Dashboard | 1,716 | 26 | Visualization & monitoring |
-
----
-
-## Project Structure
-
-```
-autonomous-scientific-agent/
-├── src/                              # Source code (9,429 LOC)
-│   ├── core/
-│   │   ├── inference.py             # Phase 1: LLM inference
-│   │   ├── tools.py                 # Phase 2: Tool registry
-│   │   ├── tools_impl.py            # Tool implementations
-│   │   └── orchestration.py         # Multi-turn orchestration
-│   ├── research/
-│   │   └── apis.py                  # Phase 3: Literature APIs
-│   ├── rag/
-│   │   ├── models.py                # Database models
-│   │   ├── embeddings.py            # Phase 4: Embeddings
-│   │   ├── vector_search.py         # Vector search
-│   │   ├── pipeline.py              # RAG pipeline
-│   │   ├── claim_extraction.py      # Phase 5: Claims
-│   │   ├── evidence_graph.py        # Evidence graph
-│   │   ├── document_extraction.py   # Phase 7: PDF extraction
-│   │   └── multimodal_indexing.py   # Multimodal indexing
-│   ├── analysis/
-│   │   └── sandbox.py               # Phase 6: Code sandbox
-│   ├── security/
-│   │   ├── prompt_injection_detector.py   # Phase 8: Injection detection
-│   │   ├── input_sanitizer.py             # Input sanitization
-│   │   └── security_audit.py              # Audit logging
-│   ├── evaluation/
-│   │   ├── metrics.py               # Phase 9: Metrics
-│   │   ├── benchmarks.py            # Benchmark datasets
-│   │   ├── evaluator.py             # Evaluation orchestration
-│   │   └── report_generator.py      # Report generation
-│   └── dashboard/
-│       ├── app.py                   # Phase 10: Dashboard app
-│       ├── metrics_view.py          # Metrics visualization
-│       └── system_status.py         # System monitoring
-│
-├── tests/                            # Test suite (168 passing)
-│   ├── unit/                         # Unit tests
-│   ├── integration/                  # Integration tests
-│   ├── security/                     # Security tests
-│   ├── evaluation/                   # Evaluation tests
-│   └── dashboard/                    # Dashboard tests
-│
-├── docs/                             # Documentation
-│   ├── ARCHITECTURE.md              # System design
-│   ├── API.md                        # API reference
-│   ├── GUIDES.md                     # How-to guides
-│   └── RESEARCH.md                   # Research methodology
-│
-├── config/                           # Configuration
-│   ├── config.yaml                  # Main configuration
-│   ├── config.example.yaml          # Example config
-│   └── logging.yaml                 # Logging config
-│
-├── scripts/                          # Utility scripts
-│   ├── setup.sh                      # Environment setup
-│   ├── run_agent.py                  # Run agent CLI
-│   ├── run_dashboard.py              # Run dashboard
-│   ├── init_db.py                    # Initialize database
-│   └── benchmark.py                  # Run benchmarks (Phase 11)
-│
-├── data/                             # Data directory
-│   ├── benchmarks/                   # Benchmark datasets
-│   ├── results/                      # Evaluation results
-│   ├── cache/                        # Model & embedding cache
-│   └── logs/                         # Application logs
-│
-├── notebooks/                        # Jupyter notebooks
-│   ├── 01_exploration.ipynb          # Data exploration
-│   ├── 02_evaluation.ipynb           # Results analysis
-│   └── 03_benchmarking.ipynb         # Performance analysis
-│
-├── README.md                         # This file
-├── ARCHITECTURE.md                   # System architecture
-├── API.md                            # API documentation
-├── RESEARCH.md                        # Research questions (RQ1–RQ7)
-├── requirements.txt                  # Dependencies
-├── requirements-dev.txt              # Dev dependencies
-├── setup.py                          # Package setup
-├── pyproject.toml                    # Project metadata
-├── pytest.ini                         # Pytest config
-├── Makefile                           # Build automation
-└── .gitignore                         # Git ignore rules
-```
-
----
-
-## Key Features
-
-### Phase 1-2: LLM & Agent
-- ✅ Load Muse Glimmer 30B locally (4-bit quantized)
-- ✅ Multi-turn conversation with state
-- ✅ Tool calling & JSON parsing
-- ✅ Error recovery & logging
-
-### Phase 3: Literature Search
-- ✅ PubMed, arXiv, OpenAlex API integration
-- ✅ Parallel search across sources
-- ✅ Result ranking & deduplication
-- ✅ PostgreSQL storage
-
-### Phase 4: Vector Search & RAG
-- ✅ Sentence Transformers embeddings
-- ✅ pgvector for semantic search
-- ✅ FAISS fallback (in-memory)
-- ✅ Relevance scoring & re-ranking
-
-### Phase 5: Evidence Graph
-- ✅ Claim extraction from papers
-- ✅ Contradiction detection (heuristic)
-- ✅ Evidence linking
-- ✅ Support/dispute graphs
-
-### Phase 6: Code Sandbox
-- ✅ Docker isolation (512MB RAM limit)
-- ✅ Resource limits (CPU, network off)
-- ✅ Import blocking
-- ✅ Local execution fallback
-
-### Phase 7: Multimodal PDF
-- ✅ Text extraction (pdfplumber)
-- ✅ Table detection & markdown
-- ✅ Figure identification
-- ✅ OCR fallback (pytesseract)
-
-### Phase 8: Security
-- ✅ Prompt injection detection (7 attack types)
-- ✅ Input sanitization (XSS, length, etc.)
-- ✅ Audit logging
-- ✅ Confidence scoring
-
-### Phase 9: Evaluation
-- ✅ RQ1–RQ7 metrics
-- ✅ 15 research questions
-- ✅ 30 contradiction pairs
-- ✅ 20 adversarial documents
-- ✅ Report generation (JSON/Markdown)
-
-### Phase 10: Dashboard
-- ✅ Report management
-- ✅ Metrics visualization (Chart.js)
-- ✅ System monitoring
-- ✅ HTML/JSON export
-
----
-
-## Configuration
-
-Edit `config/config.yaml`:
-
-```yaml
-# LLM
-llm:
-  model: "meta-llama/Llama-2-70b-chat-hf"
-  quantization: "4-bit"
-  device_map: "auto"
-
-# Database
-database:
-  type: "postgresql"
-  host: "localhost"
-  database: "autonomous_agent"
-
-# Vector Search
-vector_search:
-  embedding_model: "all-MiniLM-L6-v2"
-  pgvector:
-    enabled: true
-    similarity_metric: "cosine"
-
-# Security
-security:
-  prompt_injection_detection:
-    sensitivity: "medium"
-  input_sanitization:
-    max_input_length: 5000
-
-# Dashboard
-dashboard:
-  enabled: true
-  port: 5000
-```
-
----
-
-## Usage
-
-### CLI Agent
+### 4. Run tests
 
 ```bash
-# Run research query
-python scripts/run_agent.py \
-  --query "What are latest CRISPR therapeutics?" \
-  --timeout 300 \
-  --verbose
+pytest -q
 ```
 
-### Python API
+## Engineering workflow
 
-```python
-from src.core.orchestration import Agent
-from src.research.apis import Literature Searcher
-from src.rag.pipeline import RAGPipeline
+The project uses three connected loops:
 
-# Initialize
-agent = Agent()
-searcher = LiteratureSearcher()
-rag = RAGPipeline()
+```text
+Enterprise delivery:
+DISCOVER → DESIGN → BUILD → VALIDATE → RELEASE → OPERATE → EVOLVE
 
-# Query
-results = agent.research(
-    query="CRISPR advances in 2024",
-    max_papers=50,
-    timeout_seconds=300
-)
+Loop engineering:
+DEFINE → BUILD → MEASURE → REVIEW → ITERATE
 
-print(results.summary)
-print(results.citations)
+Research:
+PLAN → SEARCH → INSPECT → ANALYZE → CITE → REVIEW
 ```
 
-### Dashboard
+Each loop is designed to make assumptions, evidence, quality, cost, and
+uncertainty visible before an artifact is released.
 
-```bash
-# Start dashboard
-python scripts/run_dashboard.py --port 5000
-# Open http://localhost:5000
+Key implementations:
+
+- `src/research/adaptive_analysis.py`
+- `src/research/loop_engineering.py`
+- `src/research/enterprise_delivery.py`
+- `src/research/source_governance.py`
+
+## Multiple sclerosis example
+
+The repository includes an exploratory MS evidence project demonstrating how
+the workflow can organize:
+
+- multifactorial disease mechanisms
+- genetic and environmental risk factors
+- standard disease-modifying therapies
+- HSCT, CAR T-cell, and MSC research
+- possible solution paths and evidence maturity
+
+This example is deliberately conservative. Correlation is not causation;
+experimental research is not established treatment; and no visual in this
+repository is a diagnosis, cure claim, or clinical recommendation.
+
+Recognized sources are registered in `data/ms_source_registry.json`, including
+WHO, NINDS/NIH, PubMed/MEDLINE, Cochrane, ECTRIMS, ClinicalTrials.gov, FDA, and
+EMA. Claims should be tied to sources and labeled as established evidence,
+association, hypothesis, experimental, or speculation.
+
+## Project map
+
+```text
+src/
+  core/       inference, orchestration, tools
+  research/   literature APIs, adaptive analysis, delivery governance
+  rag/        retrieval, documents, evidence graphs
+  security/   injection detection and input sanitization
+  evaluation/ metrics, benchmarks, reports
+  dashboard/  metrics and monitoring views
+
+data/         source registries and analysis data
+docs/         architecture, methods, and project explanations
+scripts/      runnable workflows and visual generators
+tests/        unit, integration, security, and dashboard tests
+visuals/      generated charts, diagrams, and PDFs
 ```
-
----
-
-## Testing
-
-```bash
-# All tests
-pytest tests/ -v --cov=src
-
-# Specific phase
-pytest tests/evaluation/ -v
-pytest tests/security/ -v
-pytest tests/dashboard/ -v
-
-# Performance test
-pytest tests/ -m performance
-
-# Skip slow tests
-pytest tests/ -m "not slow"
-```
-
-**Test Results**: ✅ **168 passing, 14 skipped, 0 failures**
-
----
-
-## Phase 11: Benchmarking (Coming Soon)
-
-Phase 11 will run comprehensive evaluations:
-
-```bash
-# Run all benchmarks
-python scripts/benchmark.py --all
-
-# Run specific RQ
-python scripts/benchmark.py --rq1
-python scripts/benchmark.py --rq4
-
-# Compare models
-python scripts/benchmark.py --compare-models
-
-# Generate report
-python scripts/benchmark.py --generate-report
-```
-
-Expected outputs:
-- RQ1–RQ7 metrics
-- Model comparison (Muse vs. Gemma/Qwen)
-- Quality-cost Pareto frontier
-- Research report (PDF)
-
----
-
-## Dependencies
-
-### Required
-- Python 3.11+
-- CUDA 11.8+ (for GPU inference, optional)
-- PostgreSQL 14+ (or SQLite for dev)
-- Docker (for sandbox, optional)
-
-### Python Packages
-See `requirements.txt`:
-
-```
-torch>=2.0.0
-transformers>=4.30.0
-pdfplumber>=0.10.0
-psycopg2-binary>=2.9.0
-pgvector>=0.1.0
-sentence-transformers>=2.2.0
-sqlalchemy>=2.0.0
-flask>=2.3.0
-pytest>=7.0.0
-```
-
----
 
 ## Documentation
 
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** — System design & component overview
-- **[API.md](docs/API.md)** — API reference (Agent, tools, endpoints)
-- **[GUIDES.md](docs/GUIDES.md)** — How-to guides & tutorials
-- **[RESEARCH.md](RESEARCH.md)** — Research questions & methodology
-- **[Phase Summaries](.)** — PHASE1_SUMMARY.md → PHASE10_SUMMARY.md
+- [Final release summary](docs/final_release_summary.md)
+- [Adaptive analysis roadmap](docs/adaptive_analysis_roadmap.md)
+- [Loop engineering](docs/loop_engineering.md)
+- [Enterprise AI delivery workflow](docs/enterprise_ai_delivery_workflow.md)
+- [Multiple sclerosis evidence summary](docs/multiple_sclerosis_summary.md)
+- [Architecture](ARCHITECTURE.md)
+- [Research methodology](RESEARCH.md)
 
----
+## Docker
+
+The Docker image is built automatically for pushes and pull requests to
+`main`. To build locally:
+
+```bash
+docker build --target app --tag autonomous-scientific-agent:ci .
+```
+
+The repository uses `config/` consistently for configuration files. Docker CI
+is defined in `.github/workflows/docker-image.yml`.
 
 ## Contributing
 
-```bash
-# Create feature branch
-git checkout -b feature/my-feature
-
-# Make changes
-# Run tests
-pytest tests/ -v
-
-# Commit
-git commit -m "Add feature: description"
-
-# Push
-git push origin feature/my-feature
-```
-
-**Code Style**: Black, isort, pylint  
-**Tests**: pytest with >80% coverage  
-**Docs**: Google-style docstrings
-
----
-
-## Performance
-
-| Component | Latency | VRAM | Notes |
-|-----------|---------|------|-------|
-| LLM Inference | 2-10s | 14GB | 4-bit quantized |
-| Paper Search | 1-5s | <1GB | Parallel APIs |
-| Vector Search | 100-500ms | <2GB | pgvector or FAISS |
-| PDF Extraction | 500ms-2s | <1GB | Per document |
-| Contradiction Detection | 100-200ms | <1GB | Per pair |
-
----
-
-## Troubleshooting
-
-### CUDA Issues
-```bash
-# Check GPU
-python -c "import torch; print(torch.cuda.is_available())"
-
-# Force CPU
-export CUDA_VISIBLE_DEVICES=""
-```
-
-### Database Connection
-```bash
-# Test PostgreSQL
-psql -h localhost -U agent_user -d autonomous_agent -c "SELECT 1"
-
-# Use SQLite fallback
-python -c "from src.rag.database import get_session; print(get_session())"
-```
-
-### API Rate Limiting
-```yaml
-# config/config.yaml
-literature_search:
-  common:
-    cache_results: true
-    cache_ttl_hours: 24
-```
-
----
+1. Create a focused branch.
+2. Make a small, documented change.
+3. Run the relevant tests and format checks.
+4. Explain evidence, limitations, and operational impact.
+5. Open a pull request for review.
 
 ## License
 
-MIT License - see LICENSE file for details
-
----
-
-## Citation
-
-If you use this project, please cite:
-
-```bibtex
-@software{autonomous_agent_2024,
-  title = {Autonomous Scientific Research Agent},
-  author = {Research Team},
-  year = {2024},
-  url = {https://github.com/user/autonomous-scientific-agent}
-}
-```
-
----
-
-**Status**: ✅ 10 phases complete  
-**Latest**: Phase 10 - Dashboard & UI  
-**Next**: Phase 11 - Benchmarking & Experiments  
-**Target**: Phase 12 - Research Report & Publication
-
----
-
-*Last updated: [Current Date]*
+MIT. See [LICENSE](LICENSE).
