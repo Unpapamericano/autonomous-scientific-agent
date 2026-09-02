@@ -36,6 +36,10 @@ Highlights include:
 
 For a concise project overview, see `docs/final_release_summary.md`.
 
+The adaptive-analysis design is documented in `docs/adaptive_analysis_roadmap.md`.
+It is a work in progress: evidence-ranked inspection and telemetry are implemented,
+while provider adapters and corpus benchmarks remain planned.
+
 ---
 
 ## Quick Start
