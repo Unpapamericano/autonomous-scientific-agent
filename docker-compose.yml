@@ -30,7 +30,7 @@ services:
     # Volumes
     volumes:
       - ./src:/app/src:ro
-      - ./configs:/app/configs:ro
+      - ./config:/app/config:ro
       - ./data:/data
       - ./results:/results
       - models_cache:/data/models
@@ -63,7 +63,6 @@ services:
     
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./configs/init_db.sql:/docker-entrypoint-initdb.d/init.sql
     
     ports:
       - "5432:5432"

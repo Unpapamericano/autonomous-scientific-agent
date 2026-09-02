@@ -40,6 +40,8 @@ DISCOVER → DESIGN → BUILD → VALIDATE → RELEASE → OPERATE → EVOLVE
 - **Source governance** requires recognized authorities, literature indexes,
   systematic reviews, trial registries, regulators, or primary studies to be
   identified before claims are released.
+- **CI/CD automation** builds the Docker image on pushes and pull requests to
+  `main`, catching missing files and packaging regressions before release.
 - **Product and stakeholder review** keeps the project aligned to user value,
   accessibility, and understandable visual communication.
 
