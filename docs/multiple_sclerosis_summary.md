@@ -1,6 +1,8 @@
 # Multiple Sclerosis: causes, therapies, and cure status
 
-This summary is based on current clinical and research evidence and is meant for scientific understanding, not medical advice.
+This summary is a work-in-progress research note based on current clinical and scientific literature. It is intended for educational and exploratory use, not as final medical advice, a treatment recommendation, or a definitive cure claim.
+
+The visuals, correlations, and solution pathways in this repository reflect a reasoning framework and evidence synthesis, not final clinical guidance.
 
 ## 1) What causes multiple sclerosis?
 
@@ -99,7 +101,46 @@ The science supports the following:
 - Best existing therapy: early, personalized DMT guided by disease severity and subtype
 - Most promising higher-risk interventions: HSCT in selected severe cases; CAR T remains experimental; MSC remains investigational
 
-## 5) Open-source and quantum-ready framing
+## 5) Possible solution directions by mechanism
+
+The evidence suggests that the strongest solution paths are not all equivalent. The most relevant strategy is to match the intervention to the dominant disease mechanism.
+
+### Best-aligned solution paths
+
+- Immune dysregulation → Standard DMTs
+  - Most mature and clinically relevant lever today.
+  - Best once the disease is clearly active and needs control.
+
+- Immune dysregulation → HSCT
+  - Strong reset strategy for selected severe, treatment-resistant cases.
+  - Better viewed as a high-risk, high-reward intervention than a universal treatment.
+
+- Immune dysregulation → CAR T-cell therapy
+  - Promising experimental route that targets disease-driving immune cells.
+  - Significant potential, but still early-stage evidence.
+
+- EBV exposure → EBV-focused research
+  - Important as a causal hypothesis and research direction.
+  - Not yet a standard treatment category.
+
+- Smoking, vitamin D / UV, obesity → Lifestyle and risk-reduction pathways
+  - These are modifiable factors that may improve risk reduction and inflammatory burden.
+  - They are relevant for prevention and broader disease management, but they are not complete cures.
+
+- Genetic susceptibility → Precision monitoring and individualized care
+  - Useful for risk stratification and early identification.
+  - Helps tailor monitoring, but does not replace direct disease treatment.
+
+### Interpretation
+
+The evidence supports a layered model:
+
+1. reduce immune-mediated damage,
+2. control the strongest modifiable environmental triggers,
+3. use intensive interventions selectively for severe disease,
+4. pursue earlier, more personalized, mechanism-based therapy.
+
+## 6) Open-source and quantum-ready framing
 
 This project is built with open-source scientific tooling and can be extended with quantum or physics-inspired modeling for research exploration. However, the current clinical evidence for MS remains grounded in immunology, epidemiology, and trial data, not in quantum computing as a clinical standard.
 
@@ -119,17 +160,19 @@ Quantum computing may help with:
 
 but it is not the core clinical evidence engine for MS today.
 
-## 6) Visuals generated
+## 7) Visuals generated
 
 This repo includes visual evidence summaries under `visuals/`:
 
 - `ms_risk_factors.png`
 - `ms_therapy_landscape.png`
 - `ms_cure_status.png`
+- `ms_solution_matrix.png`
+- `ms_solution_pipeline.png`
 
-These are designed to communicate the evidence clearly and professionally.
+These are designed to communicate the current evidence clearly and professionally, but they should be read as exploratory research visuals and communication aids, not as final clinical claims or guaranteed solutions.
 
-## 7) References / evidence themes
+## 8) References / evidence themes
 
 The summary reflects the dominant literature themes:
 

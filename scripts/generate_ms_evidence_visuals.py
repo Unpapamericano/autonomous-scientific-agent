@@ -29,6 +29,17 @@ THERAPIES = [
     ("MSC therapy", 4.1, 5.5, "Investigational; mixed evidence"),
 ]
 
+POTENTIAL_SOLUTION_PATHS = [
+    ("Immune dysregulation", "Standard DMTs", 9.0, "Strongest current therapeutic leverage"),
+    ("Immune dysregulation", "HSCT", 8.4, "Most aggressive reset strategy for selected severe cases"),
+    ("Immune dysregulation", "CAR T-cell", 8.8, "Experimental immune reprogramming"),
+    ("EBV exposure", "EBV-focused research", 7.6, "Prevention and immune surveillance research"),
+    ("Smoking", "Lifestyle intervention", 8.2, "Risk reduction and disease activity moderation"),
+    ("Vitamin D / UV", "Lifestyle intervention", 7.9, "Modifiable environmental risk factor"),
+    ("Obesity / BMI", "Lifestyle intervention", 7.2, "Metabolic risk modulation"),
+    ("Genetic susceptibility", "Precision monitoring", 6.9, "Personalized risk and surveillance"),
+]
+
 
 def save_summary_json() -> None:
     payload = {
@@ -121,16 +132,73 @@ def plot_cure_status() -> Path:
     return out
 
 
+def plot_solution_paths() -> Path:
+    risk_names = [item[0] for item in RISK_FACTORS]
+    intervention_names = list(dict.fromkeys([item[1] for item in POTENTIAL_SOLUTION_PATHS]))
+    matrix = np.zeros((len(risk_names), len(intervention_names)), dtype=float)
+    for risk_name, intervention_name, score, _ in POTENTIAL_SOLUTION_PATHS:
+        row = risk_names.index(risk_name)
+        col = intervention_names.index(intervention_name)
+        matrix[row, col] = score
+
+    fig, ax = plt.subplots(figsize=(12, 7), constrained_layout=True)
+    fig.patch.set_facecolor("#F8FAFC")
+    ax.set_facecolor("#F8FAFC")
+    heatmap = ax.imshow(matrix, cmap="viridis", aspect="auto", vmin=0, vmax=10)
+    ax.set_xticks(np.arange(len(intervention_names)))
+    ax.set_xticklabels(intervention_names, rotation=24, ha="right")
+    ax.set_yticks(np.arange(len(risk_names)))
+    ax.set_yticklabels(risk_names)
+    ax.set_title("Evidence-to-solution relevance matrix for MS", fontsize=14, fontweight="bold")
+    ax.set_xlabel("Potential solution direction")
+    ax.set_ylabel("Risk factor / disease driver")
+
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            if matrix[i, j] > 0:
+                ax.text(j, i, f"{matrix[i, j]:.1f}", ha="center", va="center", color="white", fontsize=8, fontweight="bold")
+
+    fig.colorbar(heatmap, ax=ax, fraction=0.046, pad=0.04)
+    out = VISUALS / "ms_solution_matrix.png"
+    fig.savefig(out, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def plot_solution_pipeline() -> Path:
+    labels = ["Risk genes", "Immune trigger", "EBV / lifestyle", "Disease-modifying therapy", "HSCT / CAR T / MSC"]
+    values = [8.8, 9.6, 8.7, 8.5, 7.9]
+    fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
+    fig.patch.set_facecolor("#F8FAFC")
+    ax.set_facecolor("#F8FAFC")
+    ax.plot(range(len(labels)), values, color="#2563EB", marker="o", linewidth=2.5, markersize=7)
+    ax.fill_between(range(len(labels)), values, alpha=0.18, color="#60A5FA")
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels, rotation=18, ha="right")
+    ax.set_ylim(0, 10)
+    ax.set_title("Possible solution path: from cause model to intervention strategy", fontsize=14, fontweight="bold")
+    ax.set_ylabel("Evidence / intervention relevance (0-10)")
+    ax.grid(axis="y", linestyle="--", alpha=0.35)
+    out = VISUALS / "ms_solution_pipeline.png"
+    fig.savefig(out, dpi=220, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
 def main() -> None:
     save_summary_json()
     plot_risk_factors()
     plot_therapy_landscape()
     plot_cure_status()
+    plot_solution_paths()
+    plot_solution_pipeline()
     print("Created MS visuals in:", VISUALS)
     for name in [
         "ms_risk_factors.png",
         "ms_therapy_landscape.png",
         "ms_cure_status.png",
+        "ms_solution_matrix.png",
+        "ms_solution_pipeline.png",
     ]:
         print(" -", name)
 

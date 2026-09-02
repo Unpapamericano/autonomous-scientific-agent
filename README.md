@@ -19,6 +19,27 @@ A **local, open-source multimodal LLM-based autonomous agent** for scientific li
 
 **Status**: ✅ **10 phases complete, 168 tests passing, 9,429 lines of code**
 
+> Important: this repository contains active research, portfolio, and synthesis work. Some sections, including the multiple sclerosis analysis and associated solution-path visuals, are intentionally exploratory and should be read as information, hypotheses, and communication artifacts—not final medical guidance or definitive treatment recommendations.
+
+## Release Highlights
+
+This repository now combines a professional scientific research platform, a portfolio-ready data/AI storytelling layer, and domain-specific evidence synthesis for real-world topics such as multiple sclerosis.
+
+Highlights include:
+
+- Local-first scientific workflows using Python, Polars, R, and C++
+- Multi-agent research loop inspired by freephdlabor methodology
+- Open-source, reproducible visual generation for reports and presentations
+- Professional portfolio branding and presentation assets
+- Evidence-based MS summary covering causes, therapies, and cure status
+- Ready-to-use scripts for dashboards, visual reports, and scientific summaries
+
+For a concise project overview, see `docs/final_release_summary.md`.
+
+The adaptive-analysis design is documented in `docs/adaptive_analysis_roadmap.md`.
+It is a work in progress: evidence-ranked inspection and telemetry are implemented,
+while provider adapters and corpus benchmarks remain planned.
+
 ---
 
 ## Quick Start
