@@ -1,0 +1,58 @@
+[
+  {
+    "name": "WHO multiple sclerosis",
+    "organization": "World Health Organization",
+    "url": "https://www.who.int/news-room/fact-sheets/detail/multiple-sclerosis",
+    "tier": "authority",
+    "use_for": "global disease definitions, burden, and public-health context"
+  },
+  {
+    "name": "NINDS multiple sclerosis",
+    "organization": "U.S. National Institute of Neurological Disorders and Stroke",
+    "url": "https://www.ninds.nih.gov/health-information/disorders/multiple-sclerosis",
+    "tier": "authority",
+    "use_for": "clinical overview, symptoms, diagnosis, and treatment context"
+  },
+  {
+    "name": "PubMed/MEDLINE",
+    "organization": "U.S. National Library of Medicine",
+    "url": "https://pubmed.ncbi.nlm.nih.gov/",
+    "tier": "index",
+    "use_for": "retrievable biomedical primary studies and reviews"
+  },
+  {
+    "name": "Cochrane Library",
+    "organization": "Cochrane",
+    "url": "https://www.cochranelibrary.com/",
+    "tier": "guideline",
+    "use_for": "systematic reviews and evidence-quality synthesis"
+  },
+  {
+    "name": "ECTRIMS",
+    "organization": "European Committee for Treatment and Research in Multiple Sclerosis",
+    "url": "https://ectrims.eu/",
+    "tier": "guideline",
+    "use_for": "specialist consensus, clinical research, and treatment guidance"
+  },
+  {
+    "name": "ClinicalTrials.gov",
+    "organization": "U.S. National Library of Medicine",
+    "url": "https://clinicaltrials.gov/",
+    "tier": "primary_research",
+    "use_for": "trial registration, status, eligibility, and outcome reporting"
+  },
+  {
+    "name": "FDA",
+    "organization": "U.S. Food and Drug Administration",
+    "url": "https://www.fda.gov/",
+    "tier": "authority",
+    "use_for": "regulatory approvals, safety communications, and labels"
+  },
+  {
+    "name": "EMA",
+    "organization": "European Medicines Agency",
+    "url": "https://www.ema.europa.eu/",
+    "tier": "authority",
+    "use_for": "European regulatory assessments and medicine safety information"
+  }
+]

@@ -172,7 +172,27 @@ This repo includes visual evidence summaries under `visuals/`:
 
 These are designed to communicate the current evidence clearly and professionally, but they should be read as exploratory research visuals and communication aids, not as final clinical claims or guaranteed solutions.
 
-## 8) References / evidence themes
+## 8) Recognized source registry
+
+The project uses a source hierarchy rather than treating every web page as
+equivalent. The registry is available in `data/ms_source_registry.json` and
+is represented in code by `src/research/source_governance.py`.
+
+Recommended source roles for this MS example:
+
+- **WHO and NINDS**: disease definitions, clinical context, and public-health framing
+- **PubMed/MEDLINE**: traceable biomedical studies and reviews
+- **Cochrane and ECTRIMS**: systematic evidence and specialist guidance
+- **ClinicalTrials.gov**: trial status, eligibility, and registered outcomes
+- **FDA and EMA**: regulatory status and safety information
+- **MSIF**: international patient and global context
+
+Claims should identify their evidence type (`established`, `association`,
+`hypothesis`, `experimental`, or `speculative`) and cite one or more registry
+sources. A source listing is not proof: each claim still needs paper-level
+review, date checking, study-design assessment, and appropriate expert review.
+
+## 9) References / evidence themes
 
 The summary reflects the dominant literature themes:
 
