@@ -50,10 +50,10 @@ def default_delivery_gates() -> List[DeliveryGate]:
     """Return the quality gates for this scientific AI project."""
 
     return [
-        DeliveryGate(DeliveryStage.DISCOVER, ["problem_brief", "success_metrics", "risk_register"]),
+        DeliveryGate(DeliveryStage.DISCOVER, ["problem_brief", "success_metrics", "risk_register", "source_registry"]),
         DeliveryGate(DeliveryStage.DESIGN, ["architecture", "data_contract", "threat_model"]),
         DeliveryGate(DeliveryStage.BUILD, ["reproducible_code", "unit_tests", "observability"]),
-        DeliveryGate(DeliveryStage.VALIDATE, ["quality_evaluation", "evidence_review", "human_review"]),
+        DeliveryGate(DeliveryStage.VALIDATE, ["quality_evaluation", "evidence_review", "claim_citations", "human_review"]),
         DeliveryGate(DeliveryStage.RELEASE, ["release_notes", "rollback_plan", "approval"]),
         DeliveryGate(DeliveryStage.OPERATE, ["drift_monitoring", "incident_path", "cost_tracking"]),
         DeliveryGate(DeliveryStage.EVOLVE, ["feedback_loop", "backlog_update", "next_experiment"]),

@@ -21,10 +21,10 @@ DISCOVER → DESIGN → BUILD → VALIDATE → RELEASE → OPERATE → EVOLVE
 
 | Stage | Main outcome | Gate examples |
 |---|---|---|
-| Discover | Problem brief and measurable value | success metrics, risk register |
+| Discover | Problem brief and measurable value | success metrics, risk register, source registry |
 | Design | Architecture and data boundaries | data contract, threat model |
 | Build | Reproducible implementation | tests, observability |
-| Validate | Quality and evidence decision | evaluation, human review |
+| Validate | Quality and evidence decision | evaluation, claim citations, human review |
 | Release | Controlled production handoff | approval, rollback plan |
 | Operate | Reliable and economical service | drift, incidents, cost |
 | Evolve | Prioritized improvements | feedback, next experiment |
@@ -37,6 +37,9 @@ DISCOVER → DESIGN → BUILD → VALIDATE → RELEASE → OPERATE → EVOLVE
   grounding, uncertainty, safety, and cost-quality trade-offs.
 - **Domain review** protects against overclaiming, especially in the MS
   evidence work: exploratory correlations are not causation or treatment advice.
+- **Source governance** requires recognized authorities, literature indexes,
+  systematic reviews, trial registries, regulators, or primary studies to be
+  identified before claims are released.
 - **Product and stakeholder review** keeps the project aligned to user value,
   accessibility, and understandable visual communication.
 

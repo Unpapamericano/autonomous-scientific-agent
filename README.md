@@ -49,6 +49,10 @@ The enterprise-inspired software and AI delivery lifecycle is documented in
 validation, release, operations, and evolution without claiming any proprietary
 company process.
 
+Recognized-source governance is implemented in `src/research/source_governance.py`
+with an MS registry in `data/ms_source_registry.json`. Claims must be localized
+to sources and labeled by evidence type before release.
+
 ---
 
 ## Quick Start
