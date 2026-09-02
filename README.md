@@ -159,6 +159,7 @@ visuals/      generated charts, diagrams, and PDFs
 - [Loop engineering](docs/loop_engineering.md)
 - [Enterprise AI delivery workflow](docs/enterprise_ai_delivery_workflow.md)
 - [Multiple sclerosis evidence summary](docs/multiple_sclerosis_summary.md)
+- [Live MS trials monitor](docs/ms_trials_monitor.md)
 - [Architecture](ARCHITECTURE.md)
 - [Research methodology](RESEARCH.md)
 
