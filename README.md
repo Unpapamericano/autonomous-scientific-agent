@@ -40,6 +40,10 @@ The adaptive-analysis design is documented in `docs/adaptive_analysis_roadmap.md
 It is a work in progress: evidence-ranked inspection and telemetry are implemented,
 while provider adapters and corpus benchmarks remain planned.
 
+The closed-loop engineering pattern is documented in `docs/loop_engineering.md`.
+It connects planning, implementation, measurement, review, and iteration so
+research artifacts improve through observable cycles rather than one-shot output.
+
 ---
 
 ## Quick Start
