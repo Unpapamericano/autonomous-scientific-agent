@@ -44,6 +44,11 @@ The closed-loop engineering pattern is documented in `docs/loop_engineering.md`.
 It connects planning, implementation, measurement, review, and iteration so
 research artifacts improve through observable cycles rather than one-shot output.
 
+The enterprise-inspired software and AI delivery lifecycle is documented in
+`docs/enterprise_ai_delivery_workflow.md`. It adds gated discovery, architecture,
+validation, release, operations, and evolution without claiming any proprietary
+company process.
+
 ---
 
 ## Quick Start
