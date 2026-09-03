@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#12345b">
+  <meta name="description" content="A clear, evidence-aware monitor of active multiple sclerosis clinical trials from ClinicalTrials.gov.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://unpapamericano.github.io/autonomous-scientific-agent/mobile/">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>MS Trial Compass | Active clinical trials</title>
+  <style>
+    :root{--navy:#12345b;--blue:#1f6feb;--teal:#0b9b8a;--ink:#14243a;--muted:#60748d;--line:#dbe6f2;--bg:#f4f8fc;--card:#fff;--warn:#fff5d9}
+    *{box-sizing:border-box}html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink)}
+    body{margin:0}.app{max-width:760px;margin:auto;padding:env(safe-area-inset-top) 16px calc(28px + env(safe-area-inset-bottom))}
+    header{padding:26px 4px 20px;color:#fff;background:linear-gradient(135deg,var(--navy),#1d5fb5);margin:0 -16px 18px;padding-left:20px;padding-right:20px;border-radius:0 0 26px 26px}
+    .eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.8}.brand{display:flex;align-items:center;gap:10px}
+    .mark{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#ffffff1c;font-weight:900}.brand strong{font-size:1rem}
+    h1{font-size:clamp(2rem,9vw,3.5rem);line-height:1.02;letter-spacing:-.06em;margin:22px 0 10px;max-width:560px}header p{margin:0;color:#dcecff;line-height:1.5}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.button{border:1px solid #ffffff45;border-radius:999px;background:#fff;color:var(--navy);padding:11px 15px;font:inherit;font-weight:750;cursor:pointer}.button.secondary{background:#ffffff14;color:#fff}
+    .notice{background:var(--warn);border:1px solid #f0d98d;padding:14px 16px;border-radius:16px;color:#5d4814;font-size:.9rem;line-height:1.45;margin-bottom:18px}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 8px 24px #173e670b}.stat-number{font-size:2.2rem;font-weight:850;color:var(--blue);line-height:1}.stat-label{color:var(--muted);font-size:.78rem;margin-top:8px}
+    .search{width:100%;border:1px solid var(--line);border-radius:13px;padding:13px 14px;font:inherit;color:var(--ink);background:#fff;margin-bottom:12px}.section-title{display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px}.section-title h2{font-size:1.05rem;margin:0}.section-title span{font-size:.8rem;color:var(--muted)}
+    .trial{margin-bottom:12px}.trial h3{font-size:1rem;line-height:1.35;margin:8px 0}.trial a{color:var(--navy);text-decoration:none}.trial a:hover{text-decoration:underline}.meta{color:var(--muted);font-size:.78rem;line-height:1.5}.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.chip{background:#e7f6f3;color:#08786b;border-radius:999px;padding:5px 9px;font-size:.72rem;font-weight:750}.chip.blue{background:#eaf1ff;color:#245db5}
+    .trial-details{display:grid;gap:8px;font-size:.86rem;line-height:1.4}.empty{color:var(--muted);text-align:center;padding:28px 12px}.loading{color:var(--muted);padding:24px 0;text-align:center}
+    footer{margin-top:25px;color:var(--muted);font-size:.78rem;line-height:1.55}footer a{color:var(--blue)}@media(min-width:600px){.app{padding-left:24px;padding-right:24px}header{margin-left:-24px;margin-right:-24px;padding-left:28px;padding-right:28px}.stats{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand"><div class="mark" aria-hidden="true">MS</div><strong>Trial Compass</strong></div>
+    <h1>Find the next evidence step.</h1>
+    <p>Active multiple sclerosis studies, presented clearly from the official ClinicalTrials.gov registry.</p>
+    <div class="toolbar"><button class="button" id="refresh" type="button">Refresh studies</button><button class="button secondary" id="install" type="button" hidden>Install app</button></div>
+  </header>
+  <div class="notice"><strong>Information only.</strong> A registry status is not a promise of benefit or confirmation of eligibility. Always contact the study team and a qualified clinician before making decisions.</div>
+  <section class="stats" aria-label="Trial summary">
+    <div class="card"><div class="stat-number" id="total">—</div><div class="stat-label">active studies</div></div>
+    <div class="card"><div class="stat-number" id="recruiting">—</div><div class="stat-label">recruiting now</div></div>
+    <div class="card"><div class="stat-number" id="countries">—</div><div class="stat-label">countries listed</div></div>
+    <div class="card"><div class="stat-number" id="updated">—</div><div class="stat-label">last refresh</div></div>
+  </section>
+  <input class="search" id="search" type="search" placeholder="Search by study, sponsor, country, or intervention" aria-label="Filter studies">
+  <div class="section-title"><h2>Current studies</h2><span id="result-count">Loading…</span></div>
+  <section id="trials" aria-live="polite"><div class="loading">Connecting to ClinicalTrials.gov…</div></section>
+  <footer>Source: <a href="https://clinicaltrials.gov/" target="_blank" rel="noreferrer">ClinicalTrials.gov</a>. Activity counts are descriptive and not evidence of effectiveness, causation, or suitability. This work-in-progress app is not medical advice.</footer>
+</main>
+<script>
+const API="https://clinicaltrials.gov/api/v2/studies";
+const ACTIVE=["RECRUITING","NOT_YET_RECRUITING","ENROLLING_BY_INVITATION","ACTIVE_NOT_RECRUITING"];
+let trials=[];let deferredInstall;
+const $=id=>document.getElementById(id);
+function parse(study){const p=study.protocolSection||{},i=p.identificationModule||{},s=p.statusModule||{},d=p.designModule||{},sp=p.sponsorCollaboratorsModule||{},e=p.eligibilityModule||{},c=p.contactsLocationsModule||{},a=p.armsInterventionsModule||{};const loc=(c.locations||[]).map(x=>[x.city,x.country].filter(Boolean).join(", ")).filter(Boolean);return{nct:i.nctId||"Unknown",title:i.briefTitle||"Untitled study",status:s.overallStatus||"UNKNOWN",phase:(d.phases||[]).join(", ")||"Not applicable",type:d.studyType||"Not reported",sponsor:(sp.leadSponsor||{}).name||"Not reported",eligibility:e.eligibilityCriteria||"Not reported",locations:loc,interventions:[...(a.interventions||[])].map(x=>x.type).filter(Boolean),updated:(s.lastUpdatePostDateStruct||{}).date||"Not reported",url:`https://clinicaltrials.gov/study/${i.nctId||""}`}}
+function escapeText(value){const el=document.createElement("span");el.textContent=value;return el.innerHTML}
+function render(){const query=$("search").value.trim().toLowerCase();const visible=trials.filter(t=>[t.title,t.sponsor,t.status,t.phase,t.locations.join(" "),t.interventions.join(" ")].join(" ").toLowerCase().includes(query));$("result-count").textContent=`${visible.length} shown`;$("trials").innerHTML=visible.length?visible.map(t=>`<article class="card trial"><div class="chips"><span class="chip">${escapeText(t.status.replaceAll("_"," "))}</span><span class="chip blue">${escapeText(t.phase)}</span></div><h3><a href="${escapeText(t.url)}" target="_blank" rel="noreferrer">${escapeText(t.title)}</a></h3><div class="meta">${escapeText(t.nct)} · ${escapeText(t.type)} · Sponsor: ${escapeText(t.sponsor)}</div><div class="trial-details"><div><b>Intervention:</b> ${escapeText([...new Set(t.interventions)].join(", ")||"Not reported")}</div><div><b>Locations:</b> ${escapeText(t.locations.slice(0,3).join(" · ")||"Not reported")}</div><div><b>Eligibility:</b> ${escapeText(t.eligibility.slice(0,280))}${t.eligibility.length>280?"…":""}</div></div><div class="meta">Registry update: ${escapeText(t.updated)}</div></article>`).join(""):'<div class="card empty">No matching studies. Try another search.</div>'}
+function updateStats(){const country=new Set(trials.flatMap(t=>t.locations.map(x=>x.split(", ").pop())));$("total").textContent=trials.length;$("recruiting").textContent=trials.filter(t=>t.status==="RECRUITING").length;$("countries").textContent=country.size;$("updated").textContent=new Date().toLocaleTimeString([],{"hour":"2-digit","minute":"2-digit"});render()}
+async function refresh(){ $("refresh").disabled=true;$("refresh").textContent="Refreshing…";try{const u=new URL(API);u.searchParams.set("query.cond","Multiple Sclerosis");u.searchParams.set("filter.overallStatus",ACTIVE.join("|"));u.searchParams.set("pageSize","100");u.searchParams.set("format","json");const r=await fetch(u);if(!r.ok)throw new Error(`Registry request failed (${r.status})`);const data=await r.json();trials=(data.studies||[]).map(parse);updateStats()}catch(e){$("trials").innerHTML=`<div class="card empty">Unable to refresh the registry right now. Please try again later.<br><small>${escapeText(e.message)}</small></div>`}finally{$("refresh").disabled=false;$("refresh").textContent="Refresh studies"}}
+$("refresh").addEventListener("click",refresh);$("search").addEventListener("input",render);window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;$("install").hidden=false});$("install").addEventListener("click",async()=>{if(!deferredInstall)return;deferredInstall.prompt();deferredInstall=null;$("install").hidden=true});if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js");refresh();
+</script>
+</body></html>

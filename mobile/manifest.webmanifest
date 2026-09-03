@@ -1,0 +1,13 @@
+{
+  "name": "MS Trial Compass",
+  "short_name": "MS Trials",
+  "description": "A clear, evidence-aware monitor of active multiple sclerosis clinical trials.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f8fc",
+  "theme_color": "#12345b",
+  "orientation": "portrait",
+  "lang": "en",
+  "categories": ["health", "education", "medical"],
+  "icons": [{"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}]
+}
