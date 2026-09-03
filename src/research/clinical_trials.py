@@ -145,18 +145,20 @@ def render_ms_trials_page(trials: List[TrialRecord]) -> str:
     )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MS Clinical Trials Monitor</title>
+<meta name="description" content="Current active multiple sclerosis clinical trials from ClinicalTrials.gov.">
+<meta name="theme-color" content="#102a43"><meta name="robots" content="index,follow">
+<title>Multiple Sclerosis Clinical Trials Monitor | Trial Compass</title>
 <style>
-:root {{ --ink:#10233f; --muted:#62738a; --line:#dce6f1; --blue:#1d5fd1; --mint:#0f9f8f; --bg:#f4f8fc; }}
-* {{ box-sizing:border-box; }} body {{ margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--ink); background:var(--bg); }}
-.shell {{ max-width:1220px; margin:auto; padding:36px 22px 60px; }} .hero {{ display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:24px; }}
+:root {{ --ink:#132238; --muted:#60748d; --line:#dce7f2; --blue:#2167e8; --mint:#0e9f8c; --navy:#102a43; --bg:#f5f8fc; }}
+* {{ box-sizing:border-box; }} body {{ margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--ink); background:radial-gradient(circle at 88% 8%,#dceaff 0,transparent 30%),var(--bg); }}
+.shell {{ max-width:1220px; margin:auto; padding:36px 22px 60px; }} .hero {{ display:flex; justify-content:space-between; gap:24px; align-items:end; margin-bottom:24px; padding:28px; color:white; background:linear-gradient(135deg,var(--navy),#2167e8); border-radius:24px; box-shadow:0 18px 42px #102a4326; }}
 h1 {{ font-size:clamp(2rem,4vw,3.5rem); margin:8px 0; letter-spacing:-.04em; }} h2 {{ font-size:1.15rem; line-height:1.35; margin:10px 0; }}
 .kicker,.eyebrow {{ color:var(--blue); font-size:.76rem; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }}
-.note {{ background:#fff8e7; border:1px solid #f1d58a; border-radius:14px; padding:14px 16px; color:#684d0d; }}
-.dashboard {{ display:grid; grid-template-columns:1fr 2fr; gap:18px; margin:20px 0; }} .panel,.trial-card {{ background:white; border:1px solid var(--line); border-radius:16px; box-shadow:0 8px 22px #10233f0b; }}
+.note {{ background:#fff6dc; border:1px solid #f1d58a; border-radius:14px; padding:14px 16px; color:#684d0d; }}
+.dashboard {{ display:grid; grid-template-columns:1fr 2fr; gap:18px; margin:20px 0; }} .panel,.trial-card {{ background:white; border:1px solid var(--line); border-radius:18px; box-shadow:0 14px 34px #102a4310; }}
 .panel {{ padding:20px; }} .total {{ font-size:3rem; font-weight:800; color:var(--blue); }} ul {{ list-style:none; padding:0; margin:12px 0 0; }}
 li {{ display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); }} .muted {{ color:var(--muted); font-size:.9rem; }}
-.grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }} .trial-card {{ padding:20px; }}
+.grid {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:16px; }} .trial-card {{ padding:20px; transition:transform .2s,box-shadow .2s; }} .trial-card:hover {{ transform:translateY(-3px); box-shadow:0 18px 42px #102a431d; }}
 a {{ color:var(--blue); text-decoration:none; }} a:hover {{ text-decoration:underline; }} .details {{ display:grid; gap:8px; font-size:.92rem; margin:16px 0; }}
 footer {{ margin-top:28px; color:var(--muted); font-size:.86rem; }} @media(max-width:750px) {{ .hero,.dashboard {{ display:block; }} .hero .note {{ margin-top:18px; }} .panel {{ margin-bottom:16px; }} }}
 </style></head><body><main class="shell">
