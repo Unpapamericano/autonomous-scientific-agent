@@ -38,6 +38,20 @@ store personal health information.
 - keyboard and touch-friendly controls
 - source attribution and non-clinical safety language
 
+## Visual direction
+
+The mobile and web monitors share a calm, high-contrast visual language:
+
+- deep navy for trust and navigation
+- electric blue for actions and links
+- mint for active or positive registry states
+- warm amber for caution and evidence boundaries
+- generous spacing, rounded cards, subtle elevation, and responsive type
+
+This keeps the interface contemporary without using color as the only signal.
+Status text, headings, labels, and source links remain visible for
+accessibility and scientific clarity.
+
 ## Important limitations
 
 “Active” means active in the registry at retrieval time. It does not guarantee
