@@ -176,6 +176,20 @@ docker build --target app --tag autonomous-scientific-agent:ci .
 The repository uses `config/` consistently for configuration files. Docker CI
 is defined in `.github/workflows/docker-image.yml`.
 
+## Cloud delivery skills demonstration
+
+The repository includes a validation-focused enterprise cloud track:
+
+- Azure DevOps pipeline: `azure-pipelines.yml`
+- GitLab CI/CD: `.gitlab-ci.yml`
+- Terraform Azure VNet template: `infra/azure/`
+- PowerShell delivery checks: `ops/Validate-Delivery.ps1`
+- Entra ID authentication guidance and least-privilege notes:
+  `docs/cloud_delivery.md`
+
+These templates validate code and infrastructure without provisioning cloud
+resources or storing credentials. See [cloud delivery documentation](docs/cloud_delivery.md).
+
 ## Contributing
 
 1. Create a focused branch.

@@ -1,0 +1,6 @@
+resource_group_name          = "rg-autonomous-scientific-agent"
+location                     = "westeurope"
+name_prefix                  = "asa"
+vnet_address_space           = "10.20.0.0/16"
+app_subnet_address_space     = "10.20.1.0/24"
+private_endpoint_address_space = "10.20.2.0/24"
