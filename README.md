@@ -100,6 +100,14 @@ python scripts/trombone_coach.py --minutes 60 --focus "high register"
 See the [trombone musician workflow](docs/trombone_musician_workflow.md) for
 repertoire research, practice logging, and safe adaptation guidance.
 
+Launch the browser dashboard with:
+
+```bash
+python scripts/serve_trombone_web.py
+```
+
+Then open `http://127.0.0.1:8770/web/trombone/`.
+
 ## Engineering workflow
 
 The project uses three connected loops:

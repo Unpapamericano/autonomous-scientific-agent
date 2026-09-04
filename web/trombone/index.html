@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Trombone practice planner, repertoire explorer, and session tracker.">
+  <title>Brassline | Trombone practice studio</title>
+  <style>
+    :root{--ink:#18212f;--muted:#697386;--navy:#10253f;--blue:#3976d7;--gold:#e5a83b;--mint:#dff4eb;--line:#e4e8ef;--paper:#fff;--bg:#f4f6f8;--shadow:0 18px 50px #13223812}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#e5efff 0,transparent 32%),var(--bg);color:var(--ink);font:16px/1.5 Inter,ui-sans-serif,system-ui,sans-serif}
+    .shell{max-width:1180px;margin:auto;padding:24px}.hero{background:linear-gradient(125deg,#0d2036,#1f4e82 70%,#3976d7);color:#fff;border-radius:30px;padding:42px clamp(24px,5vw,64px);position:relative;overflow:hidden;box-shadow:var(--shadow)}
+    .hero:after{content:"♪";position:absolute;right:7%;top:-28px;font-size:15rem;color:#fff1;transform:rotate(12deg)}.eyebrow{text-transform:uppercase;letter-spacing:.15em;font-size:.72rem;font-weight:800;color:#f5c96b}.hero h1{font-size:clamp(2.6rem,7vw,5.7rem);line-height:.94;letter-spacing:-.07em;max-width:700px;margin:18px 0}.hero p{max-width:610px;color:#dce9f8;font-size:1.08rem}.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.button{border:0;border-radius:999px;padding:12px 18px;font:inherit;font-weight:800;background:var(--gold);color:#31230e;cursor:pointer}.button.alt{background:#ffffff1c;color:#fff;border:1px solid #fff4}.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}.card{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}.card h2{margin:0 0 6px;font-size:1.25rem}.sub{margin:0 0 18px;color:var(--muted);font-size:.9rem}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.input,.select{border:1px solid var(--line);border-radius:12px;padding:11px 12px;font:inherit;background:#fff;color:var(--ink)}.input{flex:1;min-width:160px}.plan{display:grid;gap:10px}.block{display:grid;grid-template-columns:70px 1fr auto;gap:14px;align-items:center;padding:13px;border-radius:15px;background:#f7f9fb}.minutes{font-size:1.3rem;font-weight:900;color:var(--blue)}.block strong{display:block}.tag{font-size:.72rem;border-radius:999px;padding:5px 9px;background:var(--mint);color:#17654c;font-weight:800}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:15px}.stat{background:#f7f9fb;border-radius:15px;padding:14px}.stat b{display:block;font-size:1.8rem;color:var(--navy)}.stat span{font-size:.78rem;color:var(--muted)}.repertoire{display:grid;gap:10px}.piece{border:1px solid var(--line);border-radius:15px;padding:15px}.piece h3{margin:0 0 2px;font-size:1rem}.meta{font-size:.8rem;color:var(--muted)}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chip{font-size:.7rem;padding:4px 8px;border-radius:999px;background:#eef3ff;color:#315d9f}.empty{text-align:center;color:var(--muted);padding:25px}.notice{margin-top:18px;padding:14px 16px;border-left:4px solid var(--gold);background:#fff9e9;border-radius:10px;color:#624c1c;font-size:.88rem}footer{color:var(--muted);font-size:.8rem;padding:25px 4px}a{color:var(--blue)}@media(max-width:800px){.grid{grid-template-columns:1fr}.shell{padding:12px}.hero{border-radius:22px;padding:30px 22px}.stats{grid-template-columns:1fr 1fr}.block{grid-template-columns:55px 1fr}.tag{grid-column:2}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <section class="hero">
+    <div class="eyebrow">Brassline · musician workflow</div>
+    <h1>Make your sound the main event.</h1>
+    <p>A focused practice studio for trombonists: plan the session, choose repertoire with intention, and keep the next musical step visible.</p>
+    <div class="toolbar"><button class="button" id="generate">Generate today's plan</button><button class="button alt" id="clear" type="button">Clear local log</button></div>
+  </section>
+  <div class="notice"><b>Musical guidance, not medical advice.</b> Adapt intensity to your experience. Stop if playing causes pain or persistent strain and consult a qualified teacher or health professional.</div>
+  <section class="grid">
+    <article class="card">
+      <h2>Today's practice plan</h2><p class="sub">A balanced session with sound, slide control, repertoire, and reflection.</p>
+      <div class="controls"><label>Minutes <input class="input" id="minutes" type="number" min="20" max="240" value="60"></label><label>Focus <input class="input" id="focus" value="high register"></label></div>
+      <div class="plan" id="plan"></div>
+      <div class="stats"><div class="stat"><b id="sessions">0</b><span>sessions logged</span></div><div class="stat"><b id="total">0</b><span>minutes played</span></div><div class="stat"><b id="top">—</b><span>top focus</span></div></div>
+    </article>
+    <article class="card">
+      <h2>Repertoire explorer</h2><p class="sub">Metadata and public catalog links; no sheet music is distributed here.</p>
+      <div class="controls"><input class="input" id="search" placeholder="Search composer, skill, style"><select class="select" id="level"><option value="">All levels</option><option>intermediate</option><option>advanced</option></select></div>
+      <div class="repertoire" id="repertoire"><div class="empty">Loading repertoire…</div></div>
+    </article>
+  </section>
+  <footer>Sources: <a href="https://www.trombone.net/" target="_blank" rel="noreferrer">International Trombone Association</a>, <a href="https://imslp.org/" target="_blank" rel="noreferrer">IMSLP</a>, and <a href="https://www.loc.gov/" target="_blank" rel="noreferrer">Library of Congress</a>. Verify editions, copyright, and performance rights before use.</footer>
+</main>
+<script>
+const $=id=>document.getElementById(id);let catalog=[];const key="brassline.practice.v1";
+function makePlan(minutes,focus){const m=Math.round(minutes),a=Math.max(5,Math.round(m*.2)),b=Math.max(5,Math.round(m*.3)),c=Math.max(5,Math.round(m*.35)),d=m-a-b-c;return [["Breathing & long tones",a,"Warm the body and establish a relaxed sound","easy"],["Slide technique & articulation",b,`Develop clean ${focus} coordination`,"moderate"],["Repertoire",c,"Apply the skill to a musical passage","moderate"],["Cool-down & notes",d,"Record one observation and finish comfortably","easy"]]}
+function renderPlan(){const m=Number($("minutes").value),focus=$("focus").value.trim()||"fundamentals";if(m<20){$("plan").innerHTML='<div class="empty">Choose at least 20 minutes.</div>';return}const blocks=makePlan(m,focus);$("plan").innerHTML=blocks.map(x=>`<div class="block"><div class="minutes">${x[1]}<small> min</small></div><div><strong>${x[0]}</strong><span class="meta">${x[2]}</span></div><span class="tag">${x[3]}</span></div>`).join("")}
+function sessions(){try{return JSON.parse(localStorage.getItem(key)||"[]")}catch{return[]}}
+function renderStats(){const rows=sessions(),focus={};rows.forEach(x=>focus[x.focus]=(focus[x.focus]||0)+x.minutes);const top=Object.entries(focus).sort((a,b)=>b[1]-a[1])[0];$("sessions").textContent=rows.length;$("total").textContent=rows.reduce((a,x)=>a+x.minutes,0);$("top").textContent=top?top[0]:"—"}
+function logSession(){const rows=sessions();rows.push({minutes:Number($("minutes").value),focus:$("focus").value.trim()||"fundamentals",date:new Date().toISOString()});localStorage.setItem(key,JSON.stringify(rows));renderStats()}
+function renderCatalog(){const q=$("search").value.toLowerCase(),level=$("level").value.toLowerCase();const items=catalog.filter(x=>(!level||x.level===level)&&JSON.stringify(x).toLowerCase().includes(q));$("repertoire").innerHTML=items.length?items.map(x=>`<article class="piece"><h3>${x.title}</h3><div class="meta">${x.composer} · ${x.level}</div><div class="chips">${x.styles.concat(x.skills).map(v=>`<span class="chip">${v}</span>`).join("")}</div><div class="meta" style="margin-top:9px"><a href="${x.source_url}" target="_blank" rel="noreferrer">Open source catalog ↗</a></div></article>`).join(""):'<div class="empty">No matching repertoire.</div>'}
+async function load(){try{const r=await fetch("../../data/trombone_repertoire.json");catalog=await r.json();renderCatalog()}catch{$("repertoire").innerHTML='<div class="empty">Start the page from the project web server to load the catalog.</div>'}}
+$("generate").addEventListener("click",()=>{renderPlan();logSession()});$("clear").addEventListener("click",()=>{localStorage.removeItem(key);renderStats()});$("search").addEventListener("input",renderCatalog);$("level").addEventListener("change",renderCatalog);renderPlan();renderStats();load();
+</script>
+</body>
+</html>
