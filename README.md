@@ -46,6 +46,7 @@ evidence tracking, safe tool execution, and professional visual reporting.
 | Safe execution | Sandboxed Python tooling and security checks |
 | Delivery governance | Discover → Design → Build → Validate → Release → Operate → Evolve |
 | Reporting | Dashboards, images, Markdown summaries, and PDFs |
+| Musician workflow | Trombone practice planning, repertoire metadata, and session review |
 
 ## Quick start
 
@@ -89,6 +90,15 @@ python scripts/generate_enterprise_workflow_visual.py
 ```bash
 pytest -q
 ```
+
+### 5. Try the trombone musician workflow
+
+```bash
+python scripts/trombone_coach.py --minutes 60 --focus "high register"
+```
+
+See the [trombone musician workflow](docs/trombone_musician_workflow.md) for
+repertoire research, practice logging, and safe adaptation guidance.
 
 ## Engineering workflow
 
@@ -165,6 +175,7 @@ visuals/      generated charts, diagrams, and PDFs
 - [Contributor guide](CONTRIBUTING.md)
 - [Architecture](ARCHITECTURE.md)
 - [Research methodology](RESEARCH.md)
+- [Trombone musician workflow](docs/trombone_musician_workflow.md)
 
 ## Docker
 
