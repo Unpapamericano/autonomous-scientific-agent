@@ -1,0 +1,34 @@
+[
+  {
+    "title": "Morceau de Concours",
+    "composer": "J. G. Ropartz",
+    "level": "advanced",
+    "styles": ["classical", "solo"],
+    "skills": ["lyrical phrasing", "range", "intonation"],
+    "source_url": "https://imslp.org/"
+  },
+  {
+    "title": "Cavatine",
+    "composer": "Camille Saint-Saëns",
+    "level": "advanced",
+    "styles": ["classical", "solo"],
+    "skills": ["lyrical phrasing", "breath control", "intonation"],
+    "source_url": "https://imslp.org/"
+  },
+  {
+    "title": "Trombone Concerto",
+    "composer": "Ernst Sachse",
+    "level": "intermediate",
+    "styles": ["classical", "concerto"],
+    "skills": ["articulation", "range", "musical form"],
+    "source_url": "https://imslp.org/"
+  },
+  {
+    "title": "Blue Bells of Scotland",
+    "composer": "Arthur Pryor",
+    "level": "advanced",
+    "styles": ["brass band", "solo"],
+    "skills": ["flexibility", "ornamentation", "range"],
+    "source_url": "https://www.loc.gov/"
+  }
+]
