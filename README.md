@@ -39,8 +39,10 @@ evidence tracking, safe tool execution, and professional visual reporting.
 | Literature search | PubMed, arXiv, and OpenAlex integrations |
 | Evidence synthesis | Claims, source links, contradiction-aware review |
 | Adaptive analysis | Fast, balanced, and deep evidence inspection modes |
+| Model routing | Budget- and task-aware selection with high-risk confirmation signals |
 | AI workflows | Ideation, experimentation, write-up, and review agents |
 | Data analysis | Polars-based scientific summaries and visualizations |
+| Context continuity | Searchable notes for decisions and open questions across sessions |
 | Safe execution | Sandboxed Python tooling and security checks |
 | Delivery governance | Discover → Design → Build → Validate → Release → Operate → Evolve |
 | Reporting | Dashboards, images, Markdown summaries, and PDFs |
