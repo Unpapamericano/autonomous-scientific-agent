@@ -24,7 +24,7 @@ RUN python3.11 -m pip install --no-cache-dir --upgrade pip setuptools wheel
 FROM base AS dependencies
 
 COPY pyproject.toml README.md ./
-RUN python3.11 -m pip install --no-cache-dir ".[dev]"
+RUN python3.11 -m pip install --no-cache-dir .
 
 # Stage 3: Application
 FROM dependencies AS app
