@@ -20,6 +20,7 @@ from .orchestration import (
     ToolResult,
     ExecutionStep,
 )
+from .model_routing import ModelProfile, RoutingDecision, TaskKind, choose_model
 
 __all__ = [
     # Inference
@@ -41,4 +42,9 @@ __all__ = [
     "ToolCall",
     "ToolResult",
     "ExecutionStep",
+    # Model routing
+    "ModelProfile",
+    "RoutingDecision",
+    "TaskKind",
+    "choose_model",
 ]
