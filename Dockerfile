@@ -20,8 +20,8 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 # Stage 2: Python dependencies
 FROM base AS dependencies
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml README.md ./
+RUN pip install --no-cache-dir ".[dev]"
 
 # Stage 3: Application
 FROM dependencies AS app
