@@ -7,9 +7,9 @@ enterprise skills:
 
 | Requirement | Repository implementation |
 |---|---|
-| Microsoft Azure DevOps | `azure-pipelines.yml` |
-| Terraform IaC | `infra/azure/` |
-| GitLab CI/CD | `.gitlab-ci.yml` |
+| Microsoft Azure DevOps | `demos/cloud-pipelines/azure-pipelines.yml` |
+| Terraform IaC | `demos/cloud-pipelines/infra/azure/` |
+| GitLab CI/CD | `demos/cloud-pipelines/.gitlab-ci.yml` |
 | Azure Virtual Networks | Terraform VNet, app subnet, private-endpoint subnet, NSG |
 | Microsoft Entra ID | CI authentication through service connection/workload identity |
 | Microsoft PowerShell | `ops/Validate-Delivery.ps1` |
@@ -50,9 +50,9 @@ Recommended permissions:
 
 ```bash
 pytest -q
-terraform -chdir=infra/azure init -backend=false
-terraform -chdir=infra/azure fmt -check
-terraform -chdir=infra/azure validate
+terraform -chdir=demos/cloud-pipelines/infra/azure init -backend=false
+terraform -chdir=demos/cloud-pipelines/infra/azure fmt -check
+terraform -chdir=demos/cloud-pipelines/infra/azure validate
 pwsh -File ops/Validate-Delivery.ps1
 ```
 

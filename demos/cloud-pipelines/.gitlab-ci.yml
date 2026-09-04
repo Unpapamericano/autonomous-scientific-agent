@@ -13,14 +13,14 @@ python_tests:
   image: python:3.11-slim
   stage: validate
   script:
-    - pip install -r requirements-dev.txt
+    - pip install ".[dev]"
     - pytest -q
 
 terraform_validate:
   image: hashicorp/terraform:1.9
   stage: validate
   script:
-    - cd infra/azure
+    - cd demos/cloud-pipelines/infra/azure
     - terraform init -backend=false
     - terraform fmt -check
     - terraform validate

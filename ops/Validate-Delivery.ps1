@@ -5,11 +5,11 @@ $ErrorActionPreference = "Stop"
 $requiredFiles = @(
     "Dockerfile",
     ".github/workflows/docker-image.yml",
-    "azure-pipelines.yml",
-    ".gitlab-ci.yml",
-    "infra/azure/main.tf",
-    "infra/azure/variables.tf",
-    "infra/azure/outputs.tf",
+    "demos/cloud-pipelines/azure-pipelines.yml",
+    "demos/cloud-pipelines/.gitlab-ci.yml",
+    "demos/cloud-pipelines/infra/azure/main.tf",
+    "demos/cloud-pipelines/infra/azure/variables.tf",
+    "demos/cloud-pipelines/infra/azure/outputs.tf",
     "docs/cloud_delivery.md"
 )
 

@@ -56,8 +56,7 @@ python -m venv .venv
 # macOS/Linux
 # source .venv/bin/activate
 
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install ".[dev]"
 ```
 
 ### 2. Run a local research workflow
@@ -161,6 +160,7 @@ visuals/      generated charts, diagrams, and PDFs
 - [Multiple sclerosis evidence summary](docs/multiple_sclerosis_summary.md)
 - [Live MS trials monitor](docs/ms_trials_monitor.md)
 - [Android and iOS mobile app](docs/mobile_app.md)
+- [Contributor guide](CONTRIBUTING.md)
 - [Architecture](ARCHITECTURE.md)
 - [Research methodology](RESEARCH.md)
 
@@ -180,9 +180,7 @@ is defined in `.github/workflows/docker-image.yml`.
 
 The repository includes a validation-focused enterprise cloud track:
 
-- Azure DevOps pipeline: `azure-pipelines.yml`
-- GitLab CI/CD: `.gitlab-ci.yml`
-- Terraform Azure VNet template: `infra/azure/`
+- Cloud pipeline demonstrations: [`demos/cloud-pipelines/`](demos/cloud-pipelines/)
 - PowerShell delivery checks: `ops/Validate-Delivery.ps1`
 - Entra ID authentication guidance and least-privilege notes:
   `docs/cloud_delivery.md`
@@ -192,11 +190,8 @@ resources or storing credentials. See [cloud delivery documentation](docs/cloud_
 
 ## Contributing
 
-1. Create a focused branch.
-2. Make a small, documented change.
-3. Run the relevant tests and format checks.
-4. Explain evidence, limitations, and operational impact.
-5. Open a pull request for review.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing, style, commit,
+and pull-request guidance.
 
 ## License
 
