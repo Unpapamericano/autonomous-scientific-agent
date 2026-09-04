@@ -1,0 +1,32 @@
+stages:
+  - validate
+  - security
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+
+cache:
+  paths:
+    - .cache/pip
+
+python_tests:
+  image: python:3.11-slim
+  stage: validate
+  script:
+    - pip install -r requirements-dev.txt
+    - pytest -q
+
+terraform_validate:
+  image: hashicorp/terraform:1.9
+  stage: validate
+  script:
+    - cd infra/azure
+    - terraform init -backend=false
+    - terraform fmt -check
+    - terraform validate
+
+delivery_checks:
+  image: mcr.microsoft.com/powershell:7.4-ubuntu-22.04
+  stage: security
+  script:
+    - pwsh -File ops/Validate-Delivery.ps1
