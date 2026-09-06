@@ -108,6 +108,16 @@ python scripts/serve_trombone_web.py
 
 Then open `http://127.0.0.1:8770/web/trombone/`.
 
+### 6. Run Trombone Coach AI
+
+The full-stack MVP lives in `web/trombone-coach/` and `src/trombone_coach/`.
+Start the API with `uvicorn src.trombone_coach.api:app --reload --port 8000`,
+then run the React app with `npm install && npm run dev` from
+`web/trombone-coach/`. It supports WAV upload, microphone recording,
+confidence-aware pitch analysis, session history, reports, and coach
+recommendations. See [the Trombone Coach AI MVP guide](docs/trombone_coach_ai_mvp.md)
+for the production boundaries and deployment contract.
+
 ## Engineering workflow
 
 The project uses three connected loops:
@@ -184,6 +194,7 @@ visuals/      generated charts, diagrams, and PDFs
 - [Architecture](ARCHITECTURE.md)
 - [Research methodology](RESEARCH.md)
 - [Trombone musician workflow](docs/trombone_musician_workflow.md)
+- [Trombone Coach AI MVP](docs/trombone_coach_ai_mvp.md)
 
 ## Docker
 
