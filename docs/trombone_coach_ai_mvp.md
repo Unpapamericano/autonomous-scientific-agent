@@ -46,6 +46,27 @@ Exercises, Repertoire, Profile, and Settings surfaces. The first release
 fully wires Dashboard, Record, Analysis, session history, upload, microphone
 capture, and confidence-aware recommendations.
 
+The dashboard opens with a clearly labeled illustrative baseline when no API
+history exists. It uses three synthetic observations (68, 72, and 81 score)
+to demonstrate the trend layout; these values are never presented as the
+player's measurements. Once the API returns a real session, the dashboard
+switches to measured history and removes the illustrative state.
+
+## Product style and evidence language
+
+The visual system uses forest green for trust and action, warm brass for
+attention and primary calls to action, cream for the instrument-like surface,
+and coral only for warnings. Every data surface follows the same hierarchy:
+
+1. **Measured** — a value extracted from the audio signal, with units and
+   confidence.
+2. **Interpreted** — a plain-language explanation derived from measurements.
+3. **Recommended** — one bounded practice action, not a promise of progress.
+
+The interface avoids false precision, separates unavailable metrics from zero,
+and labels demo data. This supports a business-grade positioning as a
+performance intelligence product rather than a decorative tuner.
+
 ## Measurement boundaries
 
 The default `WavAutocorrelationEngine` is a dependency-light baseline for
