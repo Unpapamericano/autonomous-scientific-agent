@@ -1,191 +1,105 @@
-import { useEffect, useRef, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import type { FormEvent } from "react";
+import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { AudioMetrics, CoachData, EMPTY_DATA, ExerciseCategory, Goal, PracticeSession, summarize, validateData, validateSession } from "./domain";
+import { exportData, loadData, saveData } from "./storage";
+import { AudioState, MicrophoneEngine } from "./audio";
 import "./styles.css";
 
-type Measurement = { value: number | null; unit: string; confidence: number; status: string };
-type Report = {
-  engine: string; detected_notes: { note: string; cents_deviation: number | null; confidence: number }[];
-  duration_seconds?: Measurement;
-  intonation_cents_mean_abs: Measurement; pitch_stability: Measurement;
-  tempo_bpm: Measurement; performance_score: Measurement; range_low: string | null;
-  range_high: string | null; measured_limitations: string[]; interpretation: string[];
-  recommendations: string[]; evidence?: { id: string; kind: "measured" | "interpreted" | "recommended"; text: string; source: string; confidence: number }[];
-};
-type Session = { id: string; title: string; focus: string; filename: string; created_at: string; report: Report };
-const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
-const LOCAL_SESSIONS_KEY = "trombone-coach.local-sessions.v1";
-const DEMO_SESSIONS: Session[] = [
-  { id: "demo-1", title: "Long tones · baseline", focus: "intonation", filename: "demo-baseline.wav", created_at: "2026-09-02T17:20:00Z", report: { engine: "demo", detected_notes: [{ note: "Bb4", cents_deviation: 18, confidence: .94 }], intonation_cents_mean_abs: { value: 18, unit: "cents absolute deviation", confidence: .94, status: "measured" }, pitch_stability: { value: 71, unit: "percent", confidence: .9, status: "measured" }, tempo_bpm: { value: null, unit: "beats per minute", confidence: 0, status: "unavailable" }, performance_score: { value: 68, unit: "score out of 100", confidence: .91, status: "measured" }, range_low: "Bb2", range_high: "Bb4", measured_limitations: ["Demo data is illustrative, not a measurement from your instrument."], interpretation: ["Upper-register pitch is the clearest opportunity in this baseline."], recommendations: ["Practice Bb4–C5 long tones for 5 minutes at 60 BPM."] } },
-  { id: "demo-2", title: "Air and connection", focus: "tone", filename: "demo-tone.wav", created_at: "2026-09-03T17:20:00Z", report: { engine: "demo", detected_notes: [{ note: "F4", cents_deviation: 13, confidence: .95 }], intonation_cents_mean_abs: { value: 13, unit: "cents absolute deviation", confidence: .95, status: "measured" }, pitch_stability: { value: 76, unit: "percent", confidence: .92, status: "measured" }, tempo_bpm: { value: null, unit: "beats per minute", confidence: 0, status: "unavailable" }, performance_score: { value: 72, unit: "score out of 100", confidence: .92, status: "measured" }, range_low: "Bb2", range_high: "C5", measured_limitations: [], interpretation: ["Stability is improving while the note center remains slightly sharp."], recommendations: ["Use a slower air attack and sustain each note for 8 seconds."] } },
-  { id: "demo-3", title: "Register ladder", focus: "range", filename: "demo-range.wav", created_at: "2026-09-05T17:20:00Z", report: { engine: "demo", detected_notes: [{ note: "C5", cents_deviation: 9, confidence: .97 }], intonation_cents_mean_abs: { value: 9, unit: "cents absolute deviation", confidence: .97, status: "measured" }, pitch_stability: { value: 84, unit: "percent", confidence: .96, status: "measured" }, tempo_bpm: { value: null, unit: "beats per minute", confidence: 0, status: "unavailable" }, performance_score: { value: 81, unit: "score out of 100", confidence: .95, status: "measured" }, range_low: "Bb2", range_high: "D5", measured_limitations: [], interpretation: ["The latest sample shows a more stable upper register."], recommendations: ["Keep the range work at moderate intensity and stop before strain."] } },
-];
-
-function metric(measurement: Measurement) {
-  return measurement.value === null ? "—" : `${measurement.value.toFixed(1)} ${measurement.unit}`;
-}
-
-function readLocalSessions(): Session[] {
-  try {
-    const value = JSON.parse(localStorage.getItem(LOCAL_SESSIONS_KEY) || "[]");
-    return Array.isArray(value) ? value : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveLocalSession(session: Session): void {
-  localStorage.setItem(LOCAL_SESSIONS_KEY, JSON.stringify([session, ...readLocalSessions()].slice(0, 50)));
-}
-
-async function readDuration(file: File): Promise<number | null> {
-  try {
-    const context = new AudioContext();
-    const buffer = await context.decodeAudioData(await file.arrayBuffer());
-    const duration = Number(buffer.duration.toFixed(3));
-    await context.close();
-    return duration;
-  } catch {
-    return null;
-  }
-}
-
-async function createLocalSession(file: File): Promise<Session> {
-  const duration = await readDuration(file);
-  const confidence = duration === null ? 0 : 1;
-  return {
-    id: `local-${crypto.randomUUID()}`,
-    title: "Local recording",
-    focus: "unclassified",
-    filename: file.name,
-    created_at: new Date().toISOString(),
-    report: {
-      engine: "browser-capture",
-      duration_seconds: { value: duration, unit: "seconds", confidence, status: duration === null ? "unavailable" : "measured" },
-      detected_notes: [],
-      intonation_cents_mean_abs: { value: null, unit: "cents absolute deviation", confidence: 0, status: "unavailable" },
-      pitch_stability: { value: null, unit: "percent", confidence: 0, status: "unavailable" },
-      tempo_bpm: { value: null, unit: "beats per minute", confidence: 0, status: "unavailable" },
-      performance_score: { value: null, unit: "score out of 100", confidence: 0, status: "unavailable" },
-      range_low: null,
-      range_high: null,
-      measured_limitations: ["This recording is saved locally. Pitch analysis requires the Coach API or an installed offline audio engine."],
-      interpretation: ["The audio file is ready for analysis, but no pitch interpretation was invented while the API was unavailable."],
-      recommendations: ["Start the Coach API or set VITE_API_URL to a deployed API, then run analysis again."],
-      evidence: duration === null ? [] : [{ id: "duration", kind: "measured", text: `Recording duration: ${duration.toFixed(3)} seconds.`, source: "browser-audio-context", confidence: 1 }],
-    },
-  };
-}
-
-function encodeWav(buffer: AudioBuffer): Blob {
-  const channelCount = Math.min(2, buffer.numberOfChannels);
-  const frameCount = buffer.length;
-  const dataSize = frameCount * channelCount * 2;
-  const output = new ArrayBuffer(44 + dataSize);
-  const view = new DataView(output);
-  const write = (offset: number, value: string) => [...value].forEach((character, index) => view.setUint8(offset + index, character.charCodeAt(0)));
-  write(0, "RIFF"); view.setUint32(4, 36 + dataSize, true); write(8, "WAVE");
-  write(12, "fmt "); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
-  view.setUint16(22, channelCount, true); view.setUint32(24, buffer.sampleRate, true);
-  view.setUint32(28, buffer.sampleRate * channelCount * 2, true); view.setUint16(32, channelCount * 2, true);
-  view.setUint16(34, 16, true); write(36, "data"); view.setUint32(40, dataSize, true);
-  let offset = 44;
-  for (let frame = 0; frame < frameCount; frame += 1) {
-    for (let channel = 0; channel < channelCount; channel += 1) {
-      const sample = Math.max(-1, Math.min(1, buffer.getChannelData(channel)[frame]));
-      view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true); offset += 2;
-    }
-  }
-  return new Blob([output], { type: "audio/wav" });
-}
+const categories: ExerciseCategory[] = ["warm-up", "intonation", "range", "articulation", "repertoire", "rhythm", "tone"];
+const nav = ["Dashboard", "Practice", "Analysis", "Progress", "Goals", "Repertoire", "Settings"];
+const emptyForm = { exercise: "", category: "warm-up" as ExerciseCategory, durationMinutes: "20", bpm: "", difficulty: "3", lowestNote: "", highestNote: "", notes: "", accuracy: "" };
 
 function App() {
   const [tab, setTab] = useState("Dashboard");
-  const [sessions, setSessions] = useState<Session[]>([]);
-  const [demoMode, setDemoMode] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [recording, setRecording] = useState(false);
-  const [message, setMessage] = useState("Upload a WAV recording to begin measured analysis.");
-  const recorder = useRef<MediaRecorder | null>(null);
-  const chunks = useRef<Blob[]>([]);
+  const [data, setData] = useState<CoachData>(EMPTY_DATA);
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string>();
+  const [goal, setGoal] = useState({ title: "", targetMinutes: "90", period: "weekly" as Goal["period"] });
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("Loading your local workspace…");
+  const [audioState, setAudioState] = useState<AudioState>({ status: "idle", message: "Microphone analysis is optional." });
+  const engine = useRef<MicrophoneEngine | undefined>(undefined);
 
-  const refresh = async () => {
-    const response = await fetch(`${API}/api/v1/sessions`, { signal: AbortSignal.timeout(3000) });
-    if (!response.ok) throw new Error("API unavailable");
-    const records = await response.json();
-    const local = readLocalSessions();
-    setSessions(records.length ? [...local, ...records] : local.length ? local : DEMO_SESSIONS);
-    setDemoMode(!records.length && !local.length);
+  useEffect(() => { loadData().then((value) => { setData(value); setStatus(value.sessions.length ? "Workspace restored from IndexedDB." : "Ready for your first practice session."); }).catch(() => setStatus("Could not load local data. Export a backup before continuing.")); }, []);
+  useEffect(() => { engine.current = new MicrophoneEngine(); return () => engine.current?.stop(); }, []);
+  useEffect(() => engine.current?.subscribe(setAudioState), []);
+
+  const persist = async (next: CoachData, success = "Saved locally.") => {
+    try { await saveData(next); setData(next); setStatus(success); } catch (error) { setStatus(error instanceof Error ? error.message : "Save failed. Your current data is still on screen."); }
   };
-  useEffect(() => {
-    refresh().catch(() => {
-      const local = readLocalSessions();
-      setSessions(local.length ? local : DEMO_SESSIONS);
-      setDemoMode(!local.length);
-      setMessage(local.length ? "Local recordings loaded. Start the API for pitch analysis." : "Demo baseline loaded. Upload audio to save a local session.");
-    });
-  }, []);
+  const summary = useMemo(() => summarize(data.sessions), [data.sessions]);
+  const filtered = useMemo(() => data.sessions.filter((s) => `${s.exercise} ${s.category} ${s.notes}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt)), [data.sessions, query]);
+  const latest = filtered[0];
 
-  const analyze = async (event: FormEvent) => {
+  const submitSession = async (event: FormEvent) => {
     event.preventDefault();
-    if (!file) { setMessage("Choose a WAV or MP3 file first."); return; }
-    const data = new FormData(); data.append("audio", file); data.append("title", "Practice session"); data.append("focus", "intonation");
-    setMessage("Analyzing audio...");
     try {
-      const response = await fetch(`${API}/api/v1/sessions/analyze`, { method: "POST", body: data, signal: AbortSignal.timeout(30000) });
-      if (!response.ok) { setMessage((await response.json()).detail || "Analysis failed."); return; }
-      setDemoMode(false);
-      setMessage("Analysis complete. Measurements are now in your history.");
-      await refresh();
-    } catch {
-      const local = await createLocalSession(file);
-      saveLocalSession(local);
-      setSessions([local, ...readLocalSessions().filter((item) => item.id !== local.id)]);
-      setDemoMode(false);
-      setMessage("Saved locally. Pitch analysis is unavailable until the Coach API is connected.");
-    }
-    setTab("Dashboard");
+      const samples = engine.current?.getMeasurements() || [];
+      const audio: AudioMetrics | undefined = samples.length ? {
+        durationSeconds: Math.round((engine.current?.getDurationSeconds() || 0) * 10) / 10,
+        lowestNote: samples.map((s) => s.midi).sort((a, b) => a - b).map((m) => samples.find((s) => s.midi === m)?.note)[0],
+        highestNote: samples.map((s) => s.midi).sort((a, b) => b - a).map((m) => samples.find((s) => s.midi === m)?.note)[0],
+        averageCents: Math.round(samples.reduce((sum, s) => sum + Math.abs(s.cents), 0) / samples.length * 10) / 10,
+        pitchStability: Math.round(samples.filter((s) => Math.abs(s.cents) <= 25).length / samples.length * 100),
+        pitchSamples: samples,
+        source: "measured",
+      } : undefined;
+      const existing = editingId ? data.sessions.find((item) => item.id === editingId) : undefined;
+      const session = validateSession({ id: editingId || crypto.randomUUID(), startedAt: existing?.startedAt || new Date().toISOString(), ...form, durationMinutes: Number(form.durationMinutes), bpm: form.bpm ? Number(form.bpm) : undefined, difficulty: Number(form.difficulty), accuracy: form.accuracy ? Number(form.accuracy) : undefined, audio: audio || existing?.audio, source: audio ? "measured" : "user-entered" });
+      const sessions = editingId ? data.sessions.map((item) => item.id === editingId ? session : item) : [session, ...data.sessions];
+      await persist({ ...data, sessions }, editingId ? "Practice session updated." : "Practice session saved in IndexedDB.");
+      setForm(emptyForm); setEditingId(undefined); setTab("Dashboard");
+    } catch (error) { setStatus(error instanceof Error ? error.message : "Please check the session fields."); }
   };
 
-  const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    chunks.current = []; recorder.current = new MediaRecorder(stream);
-    recorder.current.ondataavailable = (event) => chunks.current.push(event.data);
-    recorder.current.onstop = async () => {
-      try {
-        const context = new AudioContext();
-        const decoded = await context.decodeAudioData(await new Blob(chunks.current, { type: recorder.current?.mimeType }).arrayBuffer());
-        setFile(new File([encodeWav(decoded)], "recording.wav", { type: "audio/wav" }));
-        await context.close();
-        setMessage("Recording ready as WAV. Click Analyze upload to measure it.");
-      } catch {
-        setMessage("The browser could not convert this recording to WAV. Upload a WAV file instead.");
-      } finally {
-        stream.getTracks().forEach((track) => track.stop());
+  const deleteSession = async (id: string) => { if (!window.confirm("Delete this session? This cannot be undone.")) return; await persist({ ...data, sessions: data.sessions.filter((s) => s.id !== id) }, "Session deleted."); };
+  const addGoal = async (event: FormEvent) => { event.preventDefault(); if (!goal.title.trim() || Number(goal.targetMinutes) < 1) { setStatus("Enter a goal and a positive minute target."); return; } const item: Goal = { id: crypto.randomUUID(), title: goal.title.trim(), targetMinutes: Number(goal.targetMinutes), period: goal.period, active: true, createdAt: new Date().toISOString() }; await persist({ ...data, goals: [item, ...data.goals] }, "Goal saved."); setGoal({ ...goal, title: "" }); };
+  const removeGoal = async (id: string) => persist({ ...data, goals: data.goals.filter((item) => item.id !== id) }, "Goal removed.");
+  const download = () => { const url = URL.createObjectURL(exportData(data)); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `trombone-coach-${new Date().toISOString().slice(0, 10)}.json`; anchor.click(); URL.revokeObjectURL(url); setStatus("Backup exported."); };
+  const importFile = async (file?: File) => {
+    if (!file) return;
+    try {
+      const parsed = validateData(JSON.parse(await file.text()));
+      if (data.sessions.length || data.goals.length) {
+        const confirmed = window.confirm("Importing replaces the current workspace. Export a backup first if you need it. Continue?");
+        if (!confirmed) { setStatus("Import cancelled; existing data was preserved."); return; }
       }
-    };
-    recorder.current.start(); setRecording(true);
+      await persist(parsed, "Backup imported and saved.");
+    } catch (error) { setStatus(error instanceof Error ? `Import rejected: ${error.message}` : "Import rejected. Existing data was preserved."); }
   };
-  const stopRecording = () => { recorder.current?.stop(); setRecording(false); };
-  const latest = sessions[0]?.report;
-  const firstScore = sessions[sessions.length - 1]?.report.performance_score.value;
-  const latestScore = latest?.performance_score.value;
-  const scoreDelta = latestScore !== null && latestScore !== undefined && firstScore !== null && firstScore !== undefined ? latestScore - firstScore : 0;
-  const nav = ["Dashboard", "Record", "Analysis", "Progress", "Forecast", "Practice", "Exercises", "Repertoire", "Profile", "Settings"];
+  const toggleMic = async () => { if (audioState.status === "running") engine.current?.stop(); else await engine.current?.start(); };
 
   return <div className="app-shell">
-    <aside><div className="brand"><span>TC</span><div><b>Trombone Coach <em>AI</em></b><small>Performance intelligence</small></div></div>
-      <nav>{nav.map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{item}</button>)}</nav>
-      <div className="privacy"><span className="signal-dot" /><b>Evidence-first coaching</b><p>Measured signal, confidence, then interpretation. No invented precision.</p></div>
-    </aside>
-    <main><header><div><span className="eyebrow">Practice / Measure / Improve</span><h1>{tab}</h1></div><div className="header-actions">{demoMode && <span className="demo-pill">Illustrative baseline</span>}<span className="user-pill">Guest player <i>•</i> Local workspace</span></div></header>
-      {tab === "Record" && <section className="panel upload-panel"><div className="section-kicker">Capture a clean signal</div><h2>Turn practice into evidence</h2><p className="muted">Use a sustained note or short phrase. The MVP analyzes WAV audio offline and exposes confidence alongside every measured result.</p><form onSubmit={analyze}><label className="file-drop"><input type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" onChange={(e) => setFile(e.target.files?.[0] || null)} /><strong>{file ? file.name : "Drop audio here or choose a file"}</strong><span>WAV recommended · up to 50 MB</span></label><div className="actions"><button type="submit" className="primary">Run analysis <span>→</span></button><button type="button" onClick={recording ? stopRecording : startRecording} className="secondary">{recording ? "Stop recording" : "Record from microphone"}</button></div></form><p className="status">{message}</p></section>}
-      {tab === "Dashboard" && <><section className="hero-card"><div><span className="eyebrow">Today’s prescription</span><h2>{latest?.recommendations[0] || "Record a sustained note to establish your performance baseline."}</h2><p>One focused action, grounded in the latest measured signal.</p><button className="primary" onClick={() => setTab("Record")}>Start a measured session <span>→</span></button></div><div className="hero-score"><span>Performance score</span><strong>{latestScore?.toFixed(0) || "—"}</strong><small>{scoreDelta >= 0 ? `+${scoreDelta} since baseline` : `${scoreDelta} since baseline`}</small></div></section><section className="metric-grid">{[["Intonation", latest && metric(latest.intonation_cents_mean_abs), "absolute cents"], ["Stability", latest && metric(latest.pitch_stability), "signal consistency"], ["Tempo", latest && metric(latest.tempo_bpm), "not measured yet"], ["Range", latest?.range_low && latest.range_high ? `${latest.range_low}–${latest.range_high}` : "—", "observed register"]].map(([name, value, detail]) => <article className="metric" key={name}><div className="metric-top"><span>{name}</span><span className="metric-status">● measured</span></div><b>{value || "—"}</b><small>{detail}</small></article>)}</section><section className="dashboard-grid"><article className="panel progress-panel"><div className="panel-heading"><div><div className="section-kicker">Trajectory</div><h2>Performance trend</h2></div><span className="trend-up">↑ {scoreDelta >= 0 ? `${scoreDelta} pts` : `${scoreDelta} pts`}</span></div><div className="sparkline">{sessions.slice().reverse().map((session, index) => <div className="bar" style={{ height: `${Math.max(18, session.report.performance_score.value || 0)}%` }} key={session.id}><span>{session.report.performance_score.value?.toFixed(0)}</span><i /></div>)}</div><div className="chart-axis"><span>Earlier</span><span>Latest</span></div><p className="chart-note">Directional signal from {sessions.length} observations. It is not a guarantee of future performance.</p></article><article className="panel"><div className="section-kicker">Coach readout</div><h2>What to work on next</h2>{latest ? latest.interpretation.map((line) => <p className="callout" key={line}>{line}</p>) : <p className="muted">Your measured interpretation will appear after the first analysis.</p>}<div className="evidence-key"><span><i className="key-dot measured" />Measured</span><span><i className="key-dot interpreted" />Interpreted</span></div></article></section><section className="split"><article className="panel"><div className="panel-heading"><h2>Recent sessions</h2><button className="text-button" onClick={() => setTab("Progress")}>View all →</button></div>{sessions.length ? sessions.slice(0, 5).map((session) => <div className="session-row" key={session.id}><div><b>{session.title}</b><small>{new Date(session.created_at).toLocaleDateString()} · {session.focus}</small></div><strong>{session.report.performance_score.value?.toFixed(0) || "—"}</strong></div>) : <p className="muted">No sessions yet.</p>}</article><article className="panel science-panel"><div className="section-kicker">Method</div><h2>Why this is trustworthy</h2><p>Each result keeps the chain visible: audio signal → measured feature → confidence → coach interpretation.</p><div className="method-row"><b>01</b><span>Measure the signal</span></div><div className="method-row"><b>02</b><span>Flag uncertainty</span></div><div className="method-row"><b>03</b><span>Recommend one action</span></div></article></section></>}
-      {tab === "Analysis" && <section className="panel"><div className="section-kicker">Provenance ledger</div><h2>Measured report</h2>{latest ? <><div className="report-grid">{latest.detected_notes.map((note) => <div className="note" key={note.note}><b>{note.note}</b><span>{note.cents_deviation === null ? "Cents withheld" : `${note.cents_deviation > 0 ? "+" : ""}${note.cents_deviation.toFixed(1)} cents`}</span><small>confidence {(note.confidence * 100).toFixed(0)}%</small></div>)}</div><div className="evidence-list">{(latest.evidence || []).map((item) => <div className={`evidence-item ${item.kind}`} key={item.id}><span>{item.kind}</span><p>{item.text}</p><small>{item.source} · confidence {(item.confidence * 100).toFixed(0)}%</small></div>)}</div>{latest.measured_limitations.map((limit) => <p className="warning" key={limit}>{limit}</p>)}</> : <p className="muted">Run an analysis to see measured note events and limitations.</p>}</section>}
-      {["Progress", "Forecast", "Practice", "Exercises", "Repertoire", "Profile"].includes(tab) && <section className="panel placeholder-panel"><div className="section-kicker">Coming into focus</div><h2>{tab}</h2><p className="muted">This module is designed around the same evidence-first system: measured signal, transparent confidence, and a practical next action. Your current history already powers the foundation.</p><button className="primary" onClick={() => setTab("Record")}>Create a measured session <span>→</span></button></section>}
-      {tab === "Settings" && <section className="panel placeholder-panel"><div className="section-kicker">Your data</div><h2>Settings</h2><p className="muted">Local recordings are stored only in this browser. Connect the Coach API to add measured pitch reports and server-backed history.</p><button className="secondary" onClick={() => { localStorage.removeItem(LOCAL_SESSIONS_KEY); setSessions(DEMO_SESSIONS); setDemoMode(true); setMessage("Local recordings cleared."); }}>Clear local recordings</button></section>}
+    <aside><div className="brand"><span>TC</span><div><b>Trombone Coach <em>AI</em></b><small>Local practice intelligence</small></div></div><nav>{nav.map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{item}</button>)}</nav><div className="privacy"><span className="signal-dot" /><b>Evidence-first</b><p>Measured microphone data, your entries, and recommendations are kept distinct.</p></div></aside>
+    <main><header><div><span className="eyebrow">Practice / Measure / Improve</span><h1>{tab}</h1></div><span className="user-pill">Guest player · local workspace</span></header><p className="status" role="status">{status}</p>
+      {tab === "Dashboard" && <Dashboard summary={summary} sessions={filtered} latest={latest} onNavigate={setTab} />}
+      {tab === "Practice" && <section className="panel"><div className="section-kicker">Session tracker</div><h2>Log a focused practice session</h2><form className="session-form" onSubmit={submitSession}>{[["Exercise or repertoire", "exercise", "text"], ["Duration (minutes)", "durationMinutes", "number"], ["BPM / tempo", "bpm", "number"], ["Lowest note", "lowestNote", "text"], ["Highest note", "highestNote", "text"], ["Self-rated accuracy (%)", "accuracy", "number"]].map(([label, key, type]) => <label key={key}>{label}<input type={type} min={type === "number" ? "0" : undefined} value={form[key as keyof typeof form]} onChange={(e) => setForm({ ...form, [key]: e.target.value })} /></label>)}<label>Category<select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as ExerciseCategory })}>{categories.map((item) => <option key={item}>{item}</option>)}</select></label><label>Difficulty (1–5)<input type="number" min="1" max="5" value={form.difficulty} onChange={(e) => setForm({ ...form, difficulty: e.target.value })} /></label><label className="wide">Session notes<textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} /></label><div className="wide"><button className="primary">Save practice session →</button></div></form></section>}
+      {tab === "Analysis" && <Analysis state={audioState} onToggle={toggleMic} samples={engine.current?.getMeasurements() || []} />}
+      {tab === "Progress" && <History sessions={filtered} query={query} setQuery={setQuery} onDelete={deleteSession} onEdit={(session) => { setForm({ exercise: session.exercise, category: session.category, durationMinutes: String(session.durationMinutes), bpm: session.bpm ? String(session.bpm) : "", difficulty: String(session.difficulty), lowestNote: session.lowestNote || "", highestNote: session.highestNote || "", notes: session.notes, accuracy: session.accuracy ? String(session.accuracy) : "" }); setEditingId(session.id); setTab("Practice"); }} />}
+      {tab === "Goals" && <Goals goals={data.goals} goal={goal} setGoal={setGoal} onAdd={addGoal} onDelete={removeGoal} summary={summary} />}
+      {tab === "Repertoire" && <History sessions={filtered.filter((s) => s.category === "repertoire")} query={query} setQuery={setQuery} onDelete={deleteSession} onEdit={(session) => { setForm({ exercise: session.exercise, category: session.category, durationMinutes: String(session.durationMinutes), bpm: session.bpm ? String(session.bpm) : "", difficulty: String(session.difficulty), lowestNote: session.lowestNote || "", highestNote: session.highestNote || "", notes: session.notes, accuracy: session.accuracy ? String(session.accuracy) : "" }); setEditingId(session.id); setTab("Practice"); }} />}
+      {tab === "Settings" && <section className="panel"><div className="section-kicker">Durable local data</div><h2>Backup and recovery</h2><p className="muted">Sessions and goals are stored in IndexedDB and survive refresh and browser restart. JSON backups include all structured data and measured pitch samples.</p><div className="actions"><button className="primary" onClick={download}>Export all data</button><label className="secondary">Import JSON<input hidden type="file" accept="application/json,.json" onChange={(e) => importFile(e.target.files?.[0])} /></label></div><p className="warning">No audio blobs are retained by this MVP; only structured measurements are stored. This avoids filling browser storage and prevents implying a recording was saved when it was not.</p></section>}
     </main>
   </div>;
+}
+
+function Dashboard({ summary, sessions, latest, onNavigate }: { summary: ReturnType<typeof summarize>; sessions: PracticeSession[]; latest?: PracticeSession; onNavigate: (tab: string) => void }) {
+  const chart = sessions.slice().reverse().map((s) => ({ date: new Date(s.startedAt).toLocaleDateString(undefined, { month: "short", day: "numeric" }), minutes: s.durationMinutes, accuracy: s.accuracy ?? s.audio?.pitchStability ?? null }));
+  return <><section className="hero-card"><div><span className="eyebrow">Next best action</span><h2>{latest ? `Continue ${latest.category} with one focused ${latest.durationMinutes}-minute block.` : "Log your first practice session."}</h2><button className="primary" onClick={() => onNavigate("Practice")}>Start practice log →</button></div><div className="hero-score"><span>Practice streak</span><strong>{summary.streak}</strong><small>days</small></div></section><section className="metric-grid">{[["Today", `${summary.todayMinutes} min`], ["This week", `${summary.weekMinutes} min`], ["This month", `${summary.monthMinutes} min`], ["Sessions", `${sessions.length}`]].map(([name, value]) => <article className="metric" key={name}><span>{name}</span><b>{value}</b><small>user-entered history</small></article>)}</section><section className="panel"><div className="panel-heading"><div><div className="section-kicker">Progress</div><h2>Practice volume and accuracy</h2></div></div>{chart.length ? <ResponsiveContainer width="100%" height={250}><LineChart data={chart}><XAxis dataKey="date" /><YAxis /><Tooltip /><Line type="monotone" dataKey="minutes" stroke="#b87333" name="Minutes" /><Line type="monotone" dataKey="accuracy" stroke="#1f5b47" name="Accuracy / stability" connectNulls /></LineChart></ResponsiveContainer> : <p className="muted">Your chart will appear after you save sessions.</p>}</section></>;
+}
+
+function History({ sessions, query, setQuery, onDelete, onEdit }: { sessions: PracticeSession[]; query: string; setQuery: (value: string) => void; onDelete: (id: string) => void; onEdit: (session: PracticeSession) => void }) {
+  return <section className="panel"><div className="panel-heading"><div><div className="section-kicker">History</div><h2>Practice sessions</h2></div><input aria-label="Search sessions" placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} /></div>{sessions.length ? sessions.map((session) => <div className="session-row" key={session.id}><div><b>{session.exercise}</b><small>{new Date(session.startedAt).toLocaleString()} · {session.category} · {session.durationMinutes} min · difficulty {session.difficulty}</small><small>{session.notes || "No notes"}{session.audio ? ` · measured stability ${session.audio.pitchStability}%` : ""}</small></div><span><button className="text-button" onClick={() => onEdit(session)}>Edit</button> <button className="text-button" onClick={() => onDelete(session.id)}>Delete</button></span></div>) : <p className="muted">No matching sessions. Save a practice entry to begin.</p>}</section>;
+}
+
+function Analysis({ state, onToggle, samples }: { state: AudioState; onToggle: () => void; samples: ReturnType<MicrophoneEngine["getMeasurements"]> }) {
+  const last = samples[samples.length - 1];
+  return <section className="panel"><div className="section-kicker">Browser microphone engine</div><h2>Real-time pitch and intonation</h2><p className="muted">The engine uses Web Audio autocorrelation. It reports only stable signals above its confidence threshold; silence and noisy input remain unavailable.</p><button className="primary" onClick={onToggle}>{state.status === "running" ? "Stop microphone" : "Start microphone"}</button><p className={`audio-state ${state.status}`}>{state.message}</p>{last ? <div className="report-grid"><div className="note"><b>{last.note}</b><span>{last.cents >= 0 ? "+" : ""}{last.cents.toFixed(1)} cents</span><small>{(last.frequencyHz).toFixed(1)} Hz · confidence {(last.confidence * 100).toFixed(0)}%</small></div><div className="note"><b>{samples.length}</b><span>reliable samples</span><small>Save a Practice session to persist these measurements.</small></div></div> : <p className="muted">No reliable pitch detected yet.</p>}</section>;
+}
+
+function Goals({ goals, goal, setGoal, onAdd, onDelete, summary }: { goals: Goal[]; goal: { title: string; targetMinutes: string; period: Goal["period"] }; setGoal: (value: typeof goal) => void; onAdd: (event: FormEvent) => void; onDelete: (id: string) => void; summary: ReturnType<typeof summarize> }) {
+  return <section className="panel"><div className="section-kicker">Personal targets</div><h2>Goals</h2><form className="goal-form" onSubmit={onAdd}><input placeholder="e.g. Build a consistent warm-up" value={goal.title} onChange={(e) => setGoal({ ...goal, title: e.target.value })} /><input type="number" min="1" placeholder="Minutes" value={goal.targetMinutes} onChange={(e) => setGoal({ ...goal, targetMinutes: e.target.value })} /><select value={goal.period} onChange={(e) => setGoal({ ...goal, period: e.target.value as Goal["period"] })}><option>daily</option><option>weekly</option><option>monthly</option></select><button className="primary">Add goal</button></form>{goals.map((item) => <div className="session-row" key={item.id}><div><b>{item.title}</b><small>{item.targetMinutes} minutes · {item.period} · current week {summary.weekMinutes} minutes</small></div><button className="text-button" onClick={() => onDelete(item.id)}>Delete</button></div>)}{!goals.length && <p className="muted">No goals yet.</p>}</section>;
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
