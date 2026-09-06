@@ -5,6 +5,7 @@ import wave
 
 from src.trombone_coach.auth import AuthStore, Credentials
 from src.trombone_coach.audio_engine import WavAutocorrelationEngine
+from src.trombone_coach.knowledge import COACH_BODY, with_evidence
 
 
 def _tone_wav(frequency=440, sample_rate=16000, seconds=0.5):
@@ -30,6 +31,8 @@ def test_mvp_engine_reports_measurements_with_confidence():
     assert report.detected_notes[0].note == "A4"
     assert report.performance_score.value is not None
     assert report.tempo_bpm.status == "unavailable"
+    assert [item.kind for item in report.evidence] == ["measured", "interpreted", "recommended"]
+    assert report.evidence[0].source.startswith("audio-engine:")
 
 
 def test_mvp_engine_rejects_non_wav_until_optional_engine_is_selected():
@@ -49,3 +52,11 @@ def test_auth_store_hashes_and_verifies_passwords(tmp_path):
 
     assert store.verify(credentials)
     assert not store.verify(Credentials(email=credentials.email, password="wrong-pass"))
+
+
+def test_coach_body_is_versioned_and_report_provenance_is_rebuildable():
+    report = WavAutocorrelationEngine().analyze(_tone_wav(), "long-tone.wav")
+
+    assert COACH_BODY.name == "Trombone Coach AI"
+    rebuilt = with_evidence(report)
+    assert rebuilt.evidence == report.evidence

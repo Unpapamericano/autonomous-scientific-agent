@@ -81,6 +81,22 @@ as a measured fact and never invents precision when the signal is uncertain.
 An optional `audio` extra provides the dependencies needed for a future
 librosa/pYIN engine implementing the same `AudioEngine` protocol.
 
+## Governed Coach body
+
+The Coach knowledge layer adopts the useful boundary described by Enoch:
+the durable product body is separate from a replaceable runtime or model.
+`src/trombone_coach/knowledge.py` contains the versioned mission, principles,
+and rulebook adapter. Each report carries an evidence ledger with:
+
+- `measured`: audio-engine output and confidence
+- `interpreted`: a rule-based explanation
+- `recommended`: a bounded practice action
+
+The ledger is persisted with the session, exposed in the Analysis screen, and
+available from `GET /api/v1/coach/body`. This makes future AI providers
+replaceable without losing provenance, practice memory, or the ability to
+review why a recommendation was made.
+
 ## Deployment
 
 GitHub Pages publishes the existing local-first tracker at `/web/trombone/` and

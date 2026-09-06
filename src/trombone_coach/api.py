@@ -13,13 +13,14 @@ from .audio_engine import AudioEngine, WavAutocorrelationEngine
 from .auth import AuthStore, Credentials, create_token, current_user
 from .models import SessionRecord
 from .repository import SessionRepository
+from .knowledge import COACH_BODY
 
 
 def create_app(
     engine: AudioEngine | None = None,
     repository: SessionRepository | None = None,
 ) -> FastAPI:
-    app = FastAPI(title="Trombone Coach AI", version="0.1.0")
+    app = FastAPI(title=COACH_BODY.name, version=COACH_BODY.version, description=COACH_BODY.mission)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=os.getenv("COACH_ALLOWED_ORIGINS", "http://localhost:5173").split(","),
@@ -33,7 +34,16 @@ def create_app(
 
     @app.get("/health")
     def health() -> dict[str, str]:
-        return {"status": "ok", "engine": analyzer.name}
+        return {"status": "ok", "engine": analyzer.name, "coach_body": COACH_BODY.version}
+
+    @app.get("/api/v1/coach/body")
+    def coach_body() -> dict[str, object]:
+        return {
+            "name": COACH_BODY.name,
+            "version": COACH_BODY.version,
+            "mission": COACH_BODY.mission,
+            "principles": COACH_BODY.principles,
+        }
 
     @app.get("/api/v1/sessions", response_model=list[SessionRecord])
     def list_sessions(user: str | None = Depends(current_user)) -> list[SessionRecord]:

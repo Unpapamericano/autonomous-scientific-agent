@@ -16,6 +16,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 
 from .models import AnalysisReport, Measurement, PitchEvent
+from .knowledge import with_evidence
 
 NOTE_NAMES = ("C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B")
 
@@ -118,7 +119,7 @@ class WavAutocorrelationEngine(AudioEngine):
             confidence=confidence,
             status="measured" if score_value is not None and confidence >= 0.75 else "low_confidence",
         )
-        return AnalysisReport(
+        report = AnalysisReport(
             engine=self.name,
             analyzed_at=datetime.now(timezone.utc),
             duration_seconds=Measurement(value=round(duration, 3), unit="seconds", confidence=1),
@@ -136,6 +137,7 @@ class WavAutocorrelationEngine(AudioEngine):
             interpretation=interpretation,
             recommendations=recommendations,
         )
+        return with_evidence(report)
 
     @staticmethod
     def _mono_samples(raw: bytes, channels: int) -> list[float]:

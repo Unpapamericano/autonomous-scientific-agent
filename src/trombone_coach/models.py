@@ -24,6 +24,16 @@ class PitchEvent(BaseModel):
     confidence: float = Field(ge=0, le=1)
 
 
+class EvidenceItem(BaseModel):
+    """A traceable statement in the measured -> interpreted -> action chain."""
+
+    id: str
+    kind: Literal["measured", "interpreted", "recommended"]
+    text: str
+    source: str
+    confidence: float = Field(ge=0, le=1)
+
+
 class AnalysisReport(BaseModel):
     schema_version: str = "1.0"
     engine: str
@@ -40,6 +50,7 @@ class AnalysisReport(BaseModel):
     measured_limitations: list[str] = Field(default_factory=list)
     interpretation: list[str] = Field(default_factory=list)
     recommendations: list[str] = Field(default_factory=list)
+    evidence: list[EvidenceItem] = Field(default_factory=list)
 
 
 class SessionCreate(BaseModel):
