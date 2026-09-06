@@ -55,7 +55,19 @@ export function forecastProgress(rows) {
 
 function clone(id) { const node = document.getElementById(id); if (!node) return null; const copy = node.cloneNode(true); node.replaceWith(copy); return copy; }
 function esc(value) { const el = document.createElement("span"); el.textContent = value; return el.innerHTML; }
-function getRows() { try { const rows = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); return Array.isArray(rows) ? rows : []; } catch { return []; } }
+function getRows() {
+  try {
+    const current = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+    if (Array.isArray(current)) return current;
+    const legacy = JSON.parse(localStorage.getItem("brassline.practice.v1") || "[]");
+    if (!Array.isArray(legacy)) return [];
+    const migrated = legacy.map((row) => normalizeSession({ ...row, quality: row.quality || 3, fatigue: row.fatigue || 2 }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(migrated));
+    return migrated;
+  } catch {
+    return [];
+  }
+}
 function setStatus(message) { document.getElementById("status").textContent = message; }
 
 function drawChart(canvas, series, colors, max = 5) {
@@ -98,7 +110,7 @@ function bindApp() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify([...getRows(), row])); document.getElementById("notes").value = ""; setStatus("Sesión guardada localmente."); render();
     } catch (error) { setStatus(error.message); }
   });
-  clear.addEventListener("click", () => { if (getRows().length && !window.confirm("¿Borrar todas las sesiones guardadas en este navegador?")) return; localStorage.removeItem(STORAGE_KEY); setStatus("Registro borrado."); render(); });
+  clear.addEventListener("click", () => { if (getRows().length && !window.confirm("¿Borrar todas las sesiones guardadas en este navegador?")) return; localStorage.removeItem(STORAGE_KEY); localStorage.removeItem("brassline.practice.v1"); setStatus("Registro borrado."); render(); });
   ["minutes", "focus", "quality", "fatigue"].forEach((id) => document.getElementById(id).addEventListener("input", () => {}));
   document.getElementById("search").addEventListener("input", () => loadCatalog());
   document.getElementById("level").addEventListener("change", () => loadCatalog());
