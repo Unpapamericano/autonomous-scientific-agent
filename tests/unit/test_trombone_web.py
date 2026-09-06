@@ -9,5 +9,7 @@ def test_trombone_web_contains_functional_data_and_interaction_surfaces():
     assert 'src="app.js"' in html
     for surface in ("volumeChart", "qualityChart", "export", "import", "search", "log"):
         assert f'id="{surface}"' in html
+    assert "Save data" in html
+    assert "Load data" in html
     for behavior in ("localStorage", "normalizeSession", "transformSessions", "forecastProgress", "searchRepertoire"):
         assert behavior in app
