@@ -5,6 +5,7 @@ on:
     branches: ["main"]
     paths:
       - "web/trombone/**"
+      - "web/trombone-coach/**"
       - "data/trombone_repertoire.json"
       - ".github/workflows/publish-trombone-web.yml"
   workflow_dispatch:
@@ -31,9 +32,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          npm ci --prefix web/trombone-coach
+          npm run build --prefix web/trombone-coach
           mkdir -p _site/web/trombone _site/data
+          mkdir -p _site/web/trombone-coach
           cp web/trombone/index.html _site/web/trombone/index.html
           cp web/trombone/app.js _site/web/trombone/app.js
+          cp -R web/trombone-coach/dist/. _site/web/trombone-coach/
           cp data/trombone_repertoire.json _site/data/trombone_repertoire.json
           cat > _site/.nojekyll <<'EOF'
           EOF

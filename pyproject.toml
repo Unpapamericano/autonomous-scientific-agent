@@ -61,6 +61,10 @@ dependencies = [
     "tqdm>=4.66.0",
     "polars>=1.0.0",
     "numpy>=1.24.0",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "python-multipart>=0.0.9",
+    "PyJWT>=2.8.0",
 ]
 
 [project.optional-dependencies]
@@ -103,6 +107,10 @@ web = [
     "flask>=2.3.0",
     "flask-cors>=4.0.0",
     "streamlit>=1.28.0",
+]
+audio = [
+    "librosa>=0.10.2",
+    "soundfile>=0.12.1",
 ]
 
 [project.urls]
