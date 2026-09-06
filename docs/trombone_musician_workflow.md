@@ -20,6 +20,12 @@ Goal → Research → Practice plan → Record → Review → Refine
   `src.music.trombone.find_repertoire`.
 - Summarize logged practice minutes by focus using
   `src.music.trombone.summarize_practice`.
+- Use the web dashboard to record minutes, quality, fatigue, focus, and notes;
+  view volume and quality/fatigue charts; search repertoire; and export or
+  import the local JSON practice log.
+- The progress panel computes descriptive averages and a small linear trend
+  forecast after three sessions. It is a planning signal, not a performance
+  guarantee or clinical assessment.
 - Use the existing adaptive analysis and local model workflows to compare
   recordings, practice notes, method books, and performance goals.
 
