@@ -33,6 +33,7 @@ jobs:
           set -euo pipefail
           mkdir -p _site/web/trombone _site/data
           cp web/trombone/index.html _site/web/trombone/index.html
+          cp web/trombone/app.js _site/web/trombone/app.js
           cp data/trombone_repertoire.json _site/data/trombone_repertoire.json
           cat > _site/.nojekyll <<'EOF'
           EOF
