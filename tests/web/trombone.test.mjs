@@ -46,6 +46,6 @@ test("returns a cautious progress forecast after enough sessions", () => {
     { date: "2026-09-03", minutes: 30, quality: 4, fatigue: 2, focus: "tone" },
   ]);
   assert.equal(forecast.status, "estimated");
-  assert.equal(forecast.direction, "mejora");
+  assert.equal(forecast.direction, "improving");
   assert.equal(forecast.predictedQuality, 5);
 });
