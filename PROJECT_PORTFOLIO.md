@@ -1,10 +1,8 @@
 # AI-Powered Defense Intelligence Analysis Platform
-## Enterprise Project Portfolio for BWI GmbH AI Engineer Position
 
 **Project Version**: 1.0  
 **Date**: September 3, 2026  
 **Author**: Doncho Panayotov  
-**Target Role**: AI Engineer (m/w/d) at BWI GmbH  
 **Difficulty Level**: Enterprise-Grade Production System  
 
 ---
@@ -33,7 +31,6 @@ Create an **autonomous intelligence analysis system** for defense decision-maker
 - Maintains audit trails and compliance standards
 
 ### Strategic Alignment
-Perfect fit for **BWI GmbH's Software Data Analytics division**:
 - Demonstrates DLZ Data Science competencies
 - Showcases ML Lifecycle management
 - Proves Full-Stack capabilities
