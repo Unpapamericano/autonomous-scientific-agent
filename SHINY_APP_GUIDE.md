@@ -1,5 +1,5 @@
 # Shiny App: Defense Intelligence ROI & KPI Dashboard
-## Enterprise Decision Support System for BWI GmbH
+## Enterprise Decision Support System
 
 This Shiny application provides real-time monitoring of the Defense Intelligence Platform's ROI, budget, and KPIs across all phases and deployment scenarios.
 
