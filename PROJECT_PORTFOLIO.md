@@ -508,7 +508,7 @@ defense-ai-platform/
 
 ---
 
-## KEY FEATURES ALIGNED WITH BWI REQUIREMENTS
+## KEY FEATURES REQUIREMENTS
 
 ### 1. **Generative AI Implementation**
 ✅ Local LLM deployment (Muse Glimmer 30B)  
